@@ -8,7 +8,8 @@
     "publish": "node scripts/sync-publish.mjs",
     "build": "node scripts/sync-publish.mjs && node scripts/write-build-info.mjs && astro build",
     "preview": "astro preview",
-    "deploy": "git commit --allow-empty -m 'deploy: trigger Netlify production build' && git push origin main"
+    "deploy": "git commit --allow-empty -m 'deploy: trigger Netlify production build' && git push origin main",
+    "verify": "node scripts/verify.mjs"
   },
   "dependencies": {
     "astro": "^5.7.0"
