@@ -1,0 +1,51 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import SiteHeader from '../components/SiteHeader.astro';
+import { getPublishedChapters, formatChapterLabel } from '../lib/chapters';
+import { SITE_TITLE } from '../lib/site';
+
+const chapters = await getPublishedChapters();
+const firstChapter = chapters[0];
+---
+
+<BaseLayout title={SITE_TITLE}>
+  <SiteHeader slot="header" />
+
+  <div class="container container--cover">
+    <p class="cover__eyebrow">A Dungeons &amp; Dragons campaign, told twice</p>
+    <h1 class="cover__title">Tuesday Night Arguing</h1>
+    <p class="cover__lede">
+      Noct Thundergut, dwarf bard, recounts the finest hour of his life. The man playing
+      him is in a box room in Lancashire with the door shut, and somebody's wife has just
+      come in to ask about radiators.
+    </p>
+
+    {
+      firstChapter ? (
+        <a class="cover__cta" href={`/chapters/${firstChapter.slug}/`}>Begin reading</a>
+      ) : (
+        <p class="cover__empty">No chapters published yet.</p>
+      )
+    }
+
+    {
+      chapters.length > 0 && (
+        <ul class="chapter-list">
+          {chapters.map((chapter) => (
+            <li>
+              <a href={`/chapters/${chapter.slug}/`}>
+                <span class="chapter-list__number">
+                  {formatChapterLabel(chapter.data.chapter)}
+                </span>
+                <span class="chapter-list__title">{chapter.data.title}</span>
+                {chapter.data.summary && (
+                  <span class="chapter-list__summary">{chapter.data.summary}</span>
+                )}
+              </a>
+            </li>
+          ))}
+        </ul>
+      )
+    }
+  </div>
+</BaseLayout>

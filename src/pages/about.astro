@@ -1,0 +1,46 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import SiteHeader from '../components/SiteHeader.astro';
+import { SITE_TITLE } from '../lib/site';
+
+const aboutDescription = `About ${SITE_TITLE} — one campaign, told by a bard and by the man playing him.`;
+---
+
+<BaseLayout title="About" description={aboutDescription}>
+  <SiteHeader slot="header" />
+
+  <div class="container prose">
+    <h1 class="page-title">About this book</h1>
+
+    <p>
+      Six friends played one Dungeons &amp; Dragons campaign over Discord, each of them
+      alone in a different room. One of them kept notes in character, at the table, as it
+      happened — a hundred and thirty-eight pages of them, in the first person, written by
+      a dwarf bard called Noct who thinks rather well of himself.
+    </p>
+
+    <p>
+      This book is those notes, and what was actually going on in the six rooms at the
+      time. Noct tells his half. The man playing Noct tells the other half. They are the
+      same “I”, and they do not always agree.
+    </p>
+
+    <h2>The party</h2>
+    <ul>
+      <li><strong>Noct</strong> — dwarf bard. Narrator, in both directions. Unreliable by profession.</li>
+      <li><strong>Shae</strong> — tiefling rogue. Goes first, usually invisibly.</li>
+      <li><strong>Merlin</strong> — human mage. Familiars, fog, and a great many magic missiles.</li>
+      <li><strong>Torgan</strong> — human barbarian. Rages, takes the hits, falls off things.</li>
+      <li><strong>Magnus</strong> — dwarf cleric, and not one of the six. He came along because the party had almost no healing of their own.</li>
+      <li><strong>Garnel Stoneblender</strong> — gnome illusionist, found underground at knifepoint, kept as a friend.</li>
+    </ul>
+
+    <h2>The other telling</h2>
+    <p>
+      The same campaign was run for a younger table, and published as
+      <a href="https://ruinsofethium.netlify.app/">The Ruins of Ethium</a> — a Fighting
+      Fantasy novel for readers aged twelve and up. Same world, same ruins, same gnome
+      rescued from the same tower. Very different evening.
+    </p>
+  </div>
+</BaseLayout>

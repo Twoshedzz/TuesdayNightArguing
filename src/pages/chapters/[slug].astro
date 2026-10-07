@@ -1,0 +1,19 @@
+---
+import ChapterLayout from '../../layouts/ChapterLayout.astro';
+import { getPublishedChapters, getChapterNeighbors } from '../../lib/chapters';
+
+export async function getStaticPaths() {
+  const chapters = await getPublishedChapters();
+
+  return chapters.map((chapter) => ({
+    params: { slug: chapter.slug },
+    props: { chapter },
+  }));
+}
+
+const { chapter } = Astro.props;
+const chapters = await getPublishedChapters();
+const { prev, next } = getChapterNeighbors(chapters, chapter);
+---
+
+<ChapterLayout chapter={chapter} prev={prev} next={next} />

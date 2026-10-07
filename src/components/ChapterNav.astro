@@ -1,0 +1,45 @@
+---
+import type { CollectionEntry } from 'astro:content';
+
+interface Props {
+  prev?: CollectionEntry<'chapters'>;
+  next?: CollectionEntry<'chapters'>;
+}
+
+const { prev, next } = Astro.props;
+---
+
+<nav class="chapter-nav" aria-label="Chapter navigation">
+  <div class="chapter-nav__prev">
+    {
+      prev ? (
+        <a href={`/chapters/${prev.slug}/`}>
+          <span class="chapter-nav__label">Previous</span>
+          {prev.data.title}
+        </a>
+      ) : (
+        <span />
+      )
+    }
+  </div>
+
+  <div class="chapter-nav__index">
+    <a href="/chapters/">
+      <span class="chapter-nav__label">Contents</span>
+      All chapters
+    </a>
+  </div>
+
+  <div class="chapter-nav__next">
+    {
+      next ? (
+        <a href={`/chapters/${next.slug}/`}>
+          <span class="chapter-nav__label">Next</span>
+          {next.data.title}
+        </a>
+      ) : (
+        <span />
+      )
+    }
+  </div>
+</nav>

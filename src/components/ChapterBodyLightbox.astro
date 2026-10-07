@@ -1,0 +1,76 @@
+<dialog class="image-lightbox__dialog" id="chapter-image-dialog" aria-label="Enlarged illustration">
+  <div class="image-lightbox__panel">
+    <button type="button" class="image-lightbox__close" data-chapter-lightbox-close>
+      Close
+    </button>
+    <img
+      class="image-lightbox__full"
+      id="chapter-image-dialog-img"
+      src=""
+      alt=""
+      decoding="async"
+    />
+    <p class="image-lightbox__title" id="chapter-image-dialog-title"></p>
+  </div>
+</dialog>
+
+<script>
+  function initChapterBodyLightbox() {
+    const dialog = document.getElementById('chapter-image-dialog');
+    const fullImg = document.getElementById('chapter-image-dialog-img');
+    const title = document.getElementById('chapter-image-dialog-title');
+    const closeBtn = document.querySelector('[data-chapter-lightbox-close]');
+
+    if (
+      !(dialog instanceof HTMLDialogElement) ||
+      !(fullImg instanceof HTMLImageElement) ||
+      !(title instanceof HTMLParagraphElement)
+    ) {
+      return;
+    }
+
+    if (!dialog.dataset.bound) {
+      dialog.dataset.bound = 'true';
+
+      closeBtn?.addEventListener('click', () => dialog.close());
+
+      dialog.addEventListener('click', (event) => {
+        if (event.target === dialog) {
+          dialog.close();
+        }
+      });
+    }
+
+    document.querySelectorAll('.chapter-body img').forEach((img) => {
+      if (!(img instanceof HTMLImageElement)) {
+        return;
+      }
+
+      if (img.closest('[data-image-lightbox]') || img.dataset.enhanced === 'true') {
+        return;
+      }
+
+      img.dataset.enhanced = 'true';
+
+      const trigger = document.createElement('button');
+      trigger.type = 'button';
+      trigger.className = 'image-lightbox__trigger';
+      trigger.setAttribute('aria-haspopup', 'dialog');
+      trigger.setAttribute('aria-controls', dialog.id);
+      trigger.setAttribute('aria-label', `Enlarge: ${img.alt}`);
+
+      img.parentNode?.insertBefore(trigger, img);
+      trigger.appendChild(img);
+
+      trigger.addEventListener('click', () => {
+        fullImg.src = img.currentSrc || img.src;
+        fullImg.alt = img.alt;
+        title.textContent = img.alt;
+        dialog.showModal();
+      });
+    });
+  }
+
+  initChapterBodyLightbox();
+  document.addEventListener('astro:page-load', initChapterBodyLightbox);
+</script>

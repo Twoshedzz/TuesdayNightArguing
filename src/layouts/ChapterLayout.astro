@@ -1,0 +1,48 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import BaseLayout from './BaseLayout.astro';
+import SiteHeader from '../components/SiteHeader.astro';
+import ChapterIllustration from '../components/ChapterIllustration.astro';
+import ChapterNav from '../components/ChapterNav.astro';
+import ChapterBodyLightbox from '../components/ChapterBodyLightbox.astro';
+
+interface Props {
+  chapter: CollectionEntry<'chapters'>;
+  prev?: CollectionEntry<'chapters'>;
+  next?: CollectionEntry<'chapters'>;
+}
+
+const { chapter, prev, next } = Astro.props;
+const { Content } = await chapter.render();
+const { title, chapter: chapterNumber, summary, coverIllustration } = chapter.data;
+---
+
+<BaseLayout title={title} description={summary}>
+  <SiteHeader slot="header" />
+
+  <article class="container">
+    <header class="chapter-header">
+      <p class="chapter-header__number">
+        {chapterNumber === 0 ? 'Prologue' : `Chapter ${chapterNumber}`}
+      </p>
+      <h1 class="chapter-header__title">{title}</h1>
+      {summary && <p class="chapter-header__summary">{summary}</p>}
+    </header>
+
+    {coverIllustration && (
+      <ChapterIllustration
+        src={coverIllustration}
+        alt={`Illustration for ${title}`}
+        variant="cover"
+      />
+    )}
+
+    <div class="chapter-body">
+      <Content />
+    </div>
+
+    <ChapterBodyLightbox />
+
+    <ChapterNav prev={prev} next={next} />
+  </article>
+</BaseLayout>

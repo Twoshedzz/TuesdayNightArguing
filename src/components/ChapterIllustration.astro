@@ -1,0 +1,43 @@
+---
+import IllustrationLightbox from './IllustrationLightbox.astro';
+
+interface Props {
+  src: string;
+  alt: string;
+  caption?: string;
+  variant?: 'default' | 'cover' | 'wide';
+  enlarge?: boolean;
+}
+
+const { src, alt, caption, variant = 'default', enlarge = true } = Astro.props;
+
+const id = src
+  .replace(/^\/+/, '')
+  .replace(/[^a-zA-Z0-9]+/g, '-')
+  .replace(/^-|-$/g, '');
+
+const lightboxVariant = variant === 'cover' ? 'cover' : 'plate';
+---
+
+{
+  enlarge ? (
+    <IllustrationLightbox
+      id={id}
+      src={src}
+      alt={alt}
+      caption={caption}
+      variant={lightboxVariant}
+      showHint={Boolean(caption)}
+    />
+  ) : (
+    <figure
+      class:list={[
+        'illustration-plate',
+        variant !== 'default' && `illustration-plate--${variant}`,
+      ]}
+    >
+      <img src={src} alt={alt} loading="lazy" />
+      {caption && <figcaption class="illustration-plate__caption">{caption}</figcaption>}
+    </figure>
+  )
+}

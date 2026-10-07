@@ -1,0 +1,50 @@
+---
+import { SITE_SUBTITLE, SITE_TITLE } from '../lib/site';
+
+const currentPath = Astro.url.pathname;
+const isCover = currentPath === '/' || currentPath === '';
+
+const links = [
+  { href: '/', label: 'Cover' },
+  { href: '/chapters/', label: 'Chapters' },
+  { href: '/about/', label: 'About' },
+];
+---
+
+<header class:list={['site-header', isCover && 'site-header--cover']}>
+  <div class="site-header__inner">
+    {
+      isCover ? (
+        <div class="site-header__brand">
+          <p class="site-header__ornament" aria-hidden="true">
+            ✦ ✦ ✦
+          </p>
+          <h1 class="site-title site-title--cover">
+            <a href="/">{SITE_TITLE}</a>
+          </h1>
+          <p class="site-subtitle">{SITE_SUBTITLE}</p>
+        </div>
+      ) : (
+        <h1 class="site-title">
+          <a href="/">{SITE_TITLE}</a>
+        </h1>
+      )
+    }
+    <nav class="site-nav" aria-label="Main">
+      {
+        links.map(({ href, label }) => (
+          <a
+            href={href}
+            aria-current={
+              currentPath === href || (href !== '/' && currentPath.startsWith(href))
+                ? 'page'
+                : undefined
+            }
+          >
+            {label}
+          </a>
+        ))
+      }
+    </nav>
+  </div>
+</header>

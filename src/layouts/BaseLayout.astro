@@ -1,0 +1,46 @@
+---
+import { SITE_BUILT_AT, SITE_EDITION } from '../lib/build-info';
+import { SITE_DESCRIPTION, SITE_TAGLINE, SITE_TITLE } from '../lib/site';
+
+interface Props {
+  title: string;
+  description?: string;
+}
+
+const { title, description = SITE_DESCRIPTION } = Astro.props;
+const fullTitle = title === SITE_TITLE ? title : `${title} · ${SITE_TITLE}`;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content={description} />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:site_name" content={SITE_TITLE} />
+    <meta property="og:description" content={description} />
+    <meta name="site-edition" content={SITE_EDITION} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>{fullTitle}</title>
+    <slot name="head" />
+  </head>
+  <body>
+    <div class="site-shell">
+      <slot name="header" />
+      <main class="site-main">
+        <slot />
+      </main>
+      <footer class="site-footer">
+        <p>{SITE_TITLE} — {SITE_TAGLINE}</p>
+        <p class="site-footer__edition" title={`Built ${SITE_BUILT_AT}`}>
+          Edition {SITE_EDITION}
+        </p>
+      </footer>
+    </div>
+  </body>
+</html>
+
+<style is:global>
+  @import '../styles/global.css';
+</style>

@@ -1,0 +1,390 @@
+/* ==========================================================================
+   Tuesday Night Arguing
+
+   Two registers on one page. Noct's telling is set as a 1979 rulebook — warm
+   stock, brown-black ink, cover orange, period tables and boxed read-aloud.
+   The interruptions arrive as the client they actually arrived in.
+
+   One column everywhere. The original books are set in two; that is the one
+   thing from the reference we refuse, because two columns force either a tiny
+   measure on a phone or a scroll-up-and-back on a laptop.
+
+   Authoring: inside a chapter's markdown, wrap an interruption in
+   <aside class="room"> … </aside> and a read-aloud passage in
+   <aside class="read-aloud"> … </aside>. See publish/source/style-guide.md.
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Petrona:ital,wght@0,400;0,500;0,600;1,400&family=Bree+Serif&family=IBM+Plex+Sans:wght@400;500;600&display=swap');
+
+:root {
+  --stock: #f1ebdc;
+  --stock-deep: #e6dec9;
+  --ink: #2a1d10;
+  --ink-soft: #78644a;
+  --rule: #b5a584;
+  --orange: #b4551f;
+
+  --discord-bg: #313338;
+  --discord-fg: #dbdee1;
+  --discord-dim: #949ba4;
+  --discord-name: #c2a4ff;
+  --discord-green: #23a55a;
+
+  --serif: 'Petrona', 'Souvenir', Georgia, serif;
+  --slab: 'Bree Serif', 'Souvenir', Georgia, serif;
+  --ui: 'IBM Plex Sans', ui-sans-serif, system-ui, sans-serif;
+
+  --measure: 38rem;
+  color-scheme: light;
+}
+
+*,
+*::before,
+*::after { box-sizing: border-box; }
+
+html { background: var(--stock); }
+
+body {
+  margin: 0;
+  background: var(--stock);
+  color: var(--ink);
+  font-family: var(--serif);
+  font-size: 1.125rem;
+  line-height: 1.66;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* paper tooth */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image:
+    radial-gradient(circle at 18% 22%, rgba(42, 29, 16, 0.045) 0 1px, transparent 1.7px),
+    radial-gradient(circle at 72% 64%, rgba(42, 29, 16, 0.035) 0 1px, transparent 1.5px),
+    radial-gradient(circle at 44% 88%, rgba(42, 29, 16, 0.04) 0 1px, transparent 1.6px);
+  background-size: 12px 12px, 17px 17px, 23px 23px;
+}
+
+.site-shell { position: relative; z-index: 1; display: flex; flex-direction: column; min-height: 100vh; }
+.site-main { flex: 1; }
+
+img { max-width: 100%; height: auto; display: block; }
+a { color: var(--orange); text-decoration-thickness: 1px; text-underline-offset: 2px; }
+a:hover { color: var(--ink); }
+:focus-visible { outline: 2px solid var(--orange); outline-offset: 2px; }
+
+.container {
+  max-width: var(--measure);
+  margin: 0 auto;
+  padding-inline: 20px;
+}
+.container--wide { max-width: 54rem; }
+
+/* ── masthead ──────────────────────────────────────────────────────── */
+.site-header { border-bottom: 1px solid var(--rule); }
+.site-header__inner {
+  max-width: 54rem;
+  margin: 0 auto;
+  padding: 0.85rem 20px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.4rem 1.2rem;
+}
+.site-header__brand { margin: 0; margin-right: auto; }
+.site-header__brand a,
+.site-title a { color: var(--ink); text-decoration: none; }
+.site-title {
+  font-family: var(--slab);
+  font-weight: 400;
+  font-size: 1.1rem;
+  letter-spacing: 0.01em;
+  margin: 0;
+}
+.site-subtitle {
+  font-family: var(--ui);
+  font-size: 0.72rem;
+  color: var(--ink-soft);
+  margin: 0;
+}
+.site-nav { display: flex; flex-wrap: wrap; gap: 0.2rem 1rem; }
+.site-nav a {
+  font-family: var(--ui);
+  font-size: 0.78rem;
+  color: var(--ink-soft);
+  text-decoration: none;
+}
+.site-nav a:hover,
+.site-nav a[aria-current='page'] { color: var(--orange); }
+
+.site-footer {
+  border-top: 1px solid var(--rule);
+  margin-top: 3rem;
+  padding: 1.4rem 20px 2.2rem;
+  font-family: var(--ui);
+  font-size: 0.74rem;
+  color: var(--ink-soft);
+  text-align: center;
+}
+.site-footer p { margin: 0 0 0.3rem; }
+.site-footer__edition { opacity: 0.75; }
+
+/* ── cover ─────────────────────────────────────────────────────────── */
+.site-header--cover { border-bottom: 0; }
+.container--cover { padding-block: clamp(2.5rem, 8vw, 4.5rem) 1rem; }
+
+.cover__eyebrow {
+  font-family: var(--ui);
+  font-size: 0.66rem;
+  font-weight: 500;
+  letter-spacing: 0.17em;
+  text-transform: uppercase;
+  color: var(--orange);
+  margin: 0 0 0.9rem;
+}
+.site-title--cover,
+.cover__title {
+  font-family: var(--slab);
+  font-weight: 400;
+  font-size: clamp(2.2rem, 7.5vw, 3.4rem);
+  line-height: 1.06;
+  margin: 0 0 0.9rem;
+  text-wrap: balance;
+}
+.cover__lede { font-size: 1.12rem; color: var(--ink-soft); margin: 0 0 1.8rem; max-width: 32em; }
+.cover__cta {
+  display: inline-block;
+  font-family: var(--ui);
+  font-size: 0.82rem;
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--orange);
+  color: var(--orange);
+  text-decoration: none;
+}
+.cover__cta:hover { background: var(--orange); color: var(--stock); }
+
+/* ── chapter list ──────────────────────────────────────────────────── */
+.chapter-list { list-style: none; margin: 2rem 0 0; padding: 0; }
+.chapter-list li { border-top: 1px solid var(--rule); }
+.chapter-list li:last-child { border-bottom: 1px solid var(--rule); }
+.chapter-list a {
+  display: block;
+  padding: 0.95rem 0;
+  text-decoration: none;
+  color: var(--ink);
+}
+.chapter-list a:hover .chapter-list__title { color: var(--orange); }
+.chapter-list__number {
+  display: block;
+  font-family: var(--slab);
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--orange);
+  margin-bottom: 0.15rem;
+}
+.chapter-list__title { font-family: var(--slab); font-size: 1.2rem; }
+.chapter-list__summary { display: block; font-size: 0.98rem; color: var(--ink-soft); margin-top: 0.2rem; }
+
+/* ── chapter page ──────────────────────────────────────────────────── */
+.chapter-header { padding-block: clamp(2rem, 6vw, 3rem) 0.5rem; }
+.chapter-header__number {
+  font-family: var(--slab);
+  font-size: 0.78rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--orange);
+  margin: 0 0 0.3rem;
+}
+.chapter-header__title {
+  font-family: var(--slab);
+  font-weight: 400;
+  font-size: clamp(1.9rem, 6vw, 2.8rem);
+  line-height: 1.08;
+  margin: 0;
+  text-wrap: balance;
+  padding-bottom: 0.7rem;
+  border-bottom: 2px solid var(--ink);
+}
+.chapter-header__summary { font-size: 1.05rem; color: var(--ink-soft); margin: 0.9rem 0 0; }
+
+.chapter-body { padding-block: 1.6rem 1rem; }
+.chapter-body > p { margin: 0 0 1.05rem; }
+.chapter-body > p:first-of-type::first-letter {
+  font-family: var(--slab);
+  float: left;
+  font-size: 3.2em;
+  line-height: 0.82;
+  padding: 0.04em 0.1em 0 0;
+  color: var(--orange);
+}
+.chapter-body h2,
+.chapter-body h3 {
+  font-family: var(--slab);
+  font-weight: 400;
+  margin: 2rem 0 0.7rem;
+}
+.chapter-body h2 { font-size: 1.4rem; }
+.chapter-body h3 { font-size: 1.15rem; }
+.chapter-body hr { border: 0; border-top: 1px solid var(--rule); margin: 2rem auto; width: 40%; }
+.chapter-body em { font-style: italic; }
+
+/* read-aloud: the module convention, for what a character hears rather than sees */
+.chapter-body .read-aloud,
+.read-aloud {
+  border: 1px solid var(--ink);
+  background: var(--stock-deep);
+  padding: 1rem 1.15rem;
+  margin: 1.4rem 0;
+  font-style: italic;
+  font-size: 1.04rem;
+}
+.read-aloud p { margin: 0 0 0.7rem; }
+.read-aloud p:last-child { margin-bottom: 0; }
+
+/* period tables — initiative orders, treasure, damage */
+.chapter-body table,
+table.rulebook {
+  border-collapse: collapse;
+  width: 100%;
+  font-family: var(--serif);
+  font-size: 0.95rem;
+  font-variant-numeric: tabular-nums;
+  margin: 1.4rem 0;
+}
+.chapter-body caption,
+table.rulebook caption {
+  font-family: var(--slab);
+  font-size: 0.74rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  text-align: left;
+  color: var(--ink);
+  padding-bottom: 0.45rem;
+}
+.chapter-body th,
+.chapter-body td { padding: 0.32rem 0.7rem 0.32rem 0; text-align: left; }
+.chapter-body thead th { border-bottom: 1.5px solid var(--ink); font-weight: 600; }
+.chapter-body tbody tr + tr td { border-top: 1px solid color-mix(in srgb, var(--rule) 55%, transparent); }
+
+/* ── the room: an interruption, as the client it arrived in ────────── */
+.room {
+  display: block;
+  background: var(--discord-bg);
+  color: var(--discord-fg);
+  border-radius: 7px;
+  padding: 0.9rem 1rem 1rem;
+  margin: 1.4rem 0;
+  box-shadow: 0 10px 26px rgba(42, 29, 16, 0.22);
+  font-family: var(--ui);
+  font-size: 0.93rem;
+  line-height: 1.5;
+}
+.room p { margin: 0 0 0.5rem; font-family: var(--ui); }
+.room p:last-child { margin-bottom: 0; }
+.room em { font-style: italic; color: var(--discord-dim); }
+.room a { color: var(--discord-name); }
+
+/* channel line: <p class="chan">general · voice connected</p> */
+.room .chan {
+  font-size: 0.68rem;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  color: var(--discord-dim);
+  margin-bottom: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.room .chan::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--discord-green);
+  flex: none;
+}
+
+/* a speaker: <p><b>Torgan</b> 21:47<br>single. always single.</p> */
+.room b,
+.room strong { color: var(--discord-name); font-weight: 500; }
+.room .t { font-size: 0.68rem; color: var(--discord-dim); }
+.room .sys { font-style: italic; color: var(--discord-dim); }
+
+/* ── illustrations ─────────────────────────────────────────────────── */
+.illustration-plate { margin: 1.8rem 0; }
+.illustration-plate img { border: 1px solid var(--ink); width: 100%; }
+.illustration-plate figcaption {
+  font-family: var(--ui);
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  margin-top: 0.5rem;
+}
+.illustration-plate--cover { margin-top: 1.2rem; }
+
+/* ── chapter nav ───────────────────────────────────────────────────── */
+.chapter-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  justify-content: space-between;
+  border-top: 1px solid var(--rule);
+  margin-top: 2.5rem;
+  padding-block: 1.2rem 2rem;
+}
+.chapter-nav a { font-family: var(--ui); font-size: 0.82rem; text-decoration: none; }
+.chapter-nav__label {
+  display: block;
+  font-size: 0.64rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+/* ── lightbox ──────────────────────────────────────────────────────── */
+dialog.image-lightbox {
+  border: 0;
+  padding: 0;
+  background: transparent;
+  max-width: 96vw;
+  max-height: 96vh;
+}
+dialog.image-lightbox::backdrop { background: rgba(26, 18, 10, 0.88); }
+.image-lightbox__full { max-width: 96vw; max-height: 90vh; width: auto; }
+.image-lightbox__close {
+  font-family: var(--ui);
+  font-size: 0.78rem;
+  margin-top: 0.6rem;
+  background: transparent;
+  color: var(--stock);
+  border: 1px solid var(--stock);
+  padding: 0.35rem 0.8rem;
+  cursor: pointer;
+}
+
+/* ── generic prose + titles ────────────────────────────────────────── */
+.page-title {
+  font-family: var(--slab);
+  font-weight: 400;
+  font-size: clamp(1.7rem, 5vw, 2.3rem);
+  margin: 0 0 1rem;
+  text-wrap: balance;
+}
+.prose p { margin: 0 0 1.05rem; }
+.prose h2 { font-family: var(--slab); font-weight: 400; font-size: 1.3rem; margin: 2rem 0 0.6rem; }
+.prose ul { padding-left: 1.1rem; }
+.prose li { margin-bottom: 0.4rem; }
+
+@media (max-width: 460px) {
+  body { font-size: 1.06rem; }
+  .room { padding: 0.8rem 0.9rem 0.9rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}

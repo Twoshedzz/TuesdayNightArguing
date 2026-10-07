@@ -1,0 +1,39 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import SiteHeader from '../../components/SiteHeader.astro';
+import { getPublishedChapters, formatChapterLabel } from '../../lib/chapters';
+import { SITE_TITLE } from '../../lib/site';
+
+const chapters = await getPublishedChapters();
+const chaptersDescription = `Table of contents for ${SITE_TITLE}.`;
+---
+
+<BaseLayout title="Chapters" description={chaptersDescription}>
+  <SiteHeader slot="header" />
+
+  <div class="container">
+    <h1 class="page-title">Table of Contents</h1>
+
+    {
+      chapters.length === 0 ? (
+        <p>No chapters have been published yet. Check back soon.</p>
+      ) : (
+        <ul class="chapter-list">
+          {
+            chapters.map((chapter) => (
+              <li>
+                <span class="chapter-list__number">
+                  {formatChapterLabel(chapter.data.chapter)}
+                </span>
+                <a href={`/chapters/${chapter.slug}/`}>{chapter.data.title}</a>
+                {chapter.data.summary && (
+                  <p class="chapter-list__summary">{chapter.data.summary}</p>
+                )}
+              </li>
+            ))
+          }
+        </ul>
+      )
+    }
+  </div>
+</BaseLayout>

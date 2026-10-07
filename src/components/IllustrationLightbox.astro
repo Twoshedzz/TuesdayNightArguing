@@ -1,0 +1,100 @@
+---
+interface Props {
+  id: string;
+  src: string;
+  alt: string;
+  caption?: string;
+  variant?: 'plate' | 'map' | 'cover';
+  showHint?: boolean;
+  width?: number;
+  height?: number;
+}
+
+const {
+  id,
+  src,
+  alt,
+  caption,
+  variant = 'plate',
+  showHint = true,
+  width,
+  height,
+} = Astro.props;
+
+const dialogId = `image-lightbox-${id}`;
+const dialogLabel = caption ?? alt;
+const figureClass = [
+  'illustration-plate',
+  variant === 'map' && 'illustration-plate--map',
+  variant === 'cover' && 'illustration-plate--cover',
+].filter(Boolean);
+---
+
+<div class="image-lightbox" data-image-lightbox={id}>
+  <figure class:list={figureClass}>
+    <button
+      type="button"
+      class="image-lightbox__trigger"
+      data-image-open
+      aria-haspopup="dialog"
+      aria-controls={dialogId}
+      aria-label={`Enlarge: ${dialogLabel}`}
+    >
+      <img
+        src={src}
+        alt={alt}
+        width={width}
+        height={height}
+        loading="lazy"
+      />
+    </button>
+    {
+      caption && (
+        <figcaption class="illustration-plate__caption">
+          {caption}
+          {showHint && <span class="image-lightbox__hint"> — click to enlarge</span>}
+        </figcaption>
+      )
+    }
+  </figure>
+
+  <dialog class="image-lightbox__dialog" id={dialogId} aria-label={dialogLabel}>
+    <div class="image-lightbox__panel">
+      <button type="button" class="image-lightbox__close" data-image-close>
+        Close
+      </button>
+      <img
+        class="image-lightbox__full"
+        src={src}
+        alt={alt}
+        width={width}
+        height={height}
+        decoding="async"
+      />
+      <p class="image-lightbox__title">{dialogLabel}</p>
+    </div>
+  </dialog>
+</div>
+
+<script>
+  const roots = document.querySelectorAll('[data-image-lightbox]');
+
+  roots.forEach((root) => {
+    const dialog = root.querySelector('dialog');
+    const openBtn = root.querySelector('[data-image-open]');
+    const closeBtn = root.querySelector('[data-image-close]');
+
+    if (!(dialog instanceof HTMLDialogElement) || !(openBtn instanceof HTMLButtonElement)) {
+      return;
+    }
+
+    openBtn.addEventListener('click', () => dialog.showModal());
+    closeBtn?.addEventListener('click', () => dialog.close());
+
+    dialog.addEventListener('click', (event) => {
+      if (event.target === dialog) {
+        dialog.close();
+      }
+    });
+  });
+</script>
