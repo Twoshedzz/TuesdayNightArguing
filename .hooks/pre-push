@@ -1,0 +1,9 @@
+#!/bin/sh
+# Pre-push check. Stops a broken build leaving this machine, which also protects the
+# Netlify build credits. Skip once with:  git push --no-verify
+echo "Running pre-flight checks (git push --no-verify to skip)…"
+npm run verify || {
+  echo ""
+  echo "Push stopped: verification failed. Fix the FAIL items above, or use --no-verify."
+  exit 1
+}
