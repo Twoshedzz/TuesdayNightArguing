@@ -54,7 +54,7 @@ const CONFIG = {
       name: 'No hand-written HTML in chapters',
       scan: ['publish/chapters'],
       pattern: /<aside|<p class=|<span class=|<div/,
-      fix: 'Use the :::room and :::aloud blocks instead. Raw HTML cannot be edited in the CMS and will not survive a round trip through it.',
+      fix: 'Chapters are a list of blocks now. Raw HTML cannot be edited in the editor and will not survive a round trip through it.',
     },
     {
       name: 'No DM material in a public novel repo',

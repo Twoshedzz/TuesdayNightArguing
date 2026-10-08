@@ -1,0 +1,141 @@
+# Tuesday Night Arguing — the editor at /admin
+#
+# Chapters are written here and saved straight into the repository. The two
+# registers — Noct's telling and the room the players were sitting in — are the
+# toolbar buttons defined in registers.js.
+#
+# Everything authored here lands in publish/chapters/, exactly where Claude and
+# Pete also work. There is one source of truth, not two.
+
+# Only has an effect on localhost, where `npx decap-server` proxies the real files.
+# Ignored in production, where git-gateway below is used.
+local_backend: true
+
+backend:
+  name: git-gateway
+  branch: main
+  # What the commit message says when someone saves. Readable in the repo history.
+  commit_messages:
+    create: 'chapter: add {{slug}} (via the editor)'
+    update: 'chapter: update {{slug}} (via the editor)'
+    delete: 'chapter: remove {{slug}} (via the editor)'
+    uploadMedia: 'art: add {{path}} (via the editor)'
+    deleteMedia: 'art: remove {{path}} (via the editor)'
+
+# Uploaded pictures land where the sync script expects them.
+media_folder: 'publish/illustrations/scenes'
+public_folder: '/illustrations/scenes'
+
+# Keep the editor honest about what the site actually looks like. This file is
+# copied from src/styles/global.css on every build, so it cannot drift.
+site_url: 'https://tuesday-night-arguing.netlify.app'
+logo_url: '/favicon.svg'
+
+collections:
+  - name: 'chapters'
+    label: 'Chapters'
+    label_singular: 'Chapter'
+    folder: 'publish/chapters'
+    create: true
+    delete: false
+    # 09-the-thing-in-the-water — the number orders the book, the words make the URL
+    slug: '{{fields.chapter}}-{{title}}'
+    summary: '{{chapter}} · {{title}}'
+    sortable_fields: ['chapter', 'title']
+    fields:
+      - label: 'Title'
+        name: 'title'
+        widget: 'string'
+        hint: 'The chapter title, as it appears at the top of the page.'
+
+      - label: 'Chapter number'
+        name: 'chapter'
+        widget: 'number'
+        value_type: 'int'
+        min: 0
+        hint: 'Sets the order of the book. 0 is a prologue.'
+
+      - label: 'One-line summary'
+        name: 'summary'
+        widget: 'string'
+        required: false
+        hint: 'Shown under the title and in the chapter list. One sentence.'
+
+      - label: 'Cover picture'
+        name: 'coverIllustration'
+        widget: 'image'
+        required: false
+        hint: 'Optional. A plate at the head of the chapter.'
+
+      - label: 'Published'
+        name: 'published'
+        widget: 'boolean'
+        default: false
+        hint: 'Off while you are writing. Switch on when it is ready for readers.'
+
+      - label: 'The chapter'
+        name: 'body'
+        label_singular: 'Block'
+        widget: 'list'
+        types_only: false
+        hint: >-
+          The chapter, block by block. Add a block wherever you want one, drag to
+          move it, and delete what you do not need.
+        types:
+          - label: "Noct's telling"
+            name: 'telling'
+            widget: 'object'
+            summary: '{{fields.text}}'
+            fields:
+              - label: 'Prose'
+                name: 'text'
+                widget: 'markdown'
+                buttons: ['bold', 'italic', 'heading-two', 'quote', 'bulleted-list', 'numbered-list']
+                editor_components: ['image']
+                hint: 'Noct, telling it afterwards. Write normally.'
+
+          - label: 'Interruption — the room'
+            name: 'interruption'
+            widget: 'object'
+            summary: '{{fields.channel}} — {{fields.lines}}'
+            fields:
+              - label: 'Channel line'
+                name: 'channel'
+                widget: 'string'
+                required: false
+                hint: >-
+                  Optional, e.g. "general · voice connected · 5 of 5". The green dot
+                  is drawn for you.
+              - label: 'What was said'
+                name: 'lines'
+                widget: 'text'
+                hint: >-
+                  One per line. **Torgan** 21:47 single. always single. — or
+                  *moved Noct to Room 4* for something the app said rather than a person.
+
+          - label: 'Read-aloud — heard, not seen'
+            name: 'aloud'
+            widget: 'object'
+            summary: '{{fields.text}}'
+            fields:
+              - label: 'The text'
+                name: 'text'
+                widget: 'text'
+                hint: 'A voice, a vision, something read off a wall. Boxed on the page.'
+
+          - label: 'Table'
+            name: 'table'
+            widget: 'object'
+            summary: '{{fields.caption}}'
+            fields:
+              - label: 'Caption'
+                name: 'caption'
+                widget: 'string'
+                required: false
+                hint: 'Small caps above the table, e.g. "Order of Battle — The Otyugh".'
+              - label: 'The table'
+                name: 'markdown'
+                widget: 'text'
+                hint: >-
+                  A markdown table. | Combatant | Init. | on the first row, then
+                  | --- | --- | underneath.

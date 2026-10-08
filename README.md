@@ -33,10 +33,18 @@ cp publish/chapters/_template.md publish/chapters/02-your-slug.md
 The numeric prefix orders the files; the filename becomes the URL. Frontmatter takes
 `title`, `chapter`, `summary`, `coverIllustration` and `published`.
 
-The two registers are marked with two wrappers inside the markdown —
-`<aside class="room">` for an interruption and `<aside class="read-aloud">` for
-something heard. [`publish/source/style-guide.md`](publish/source/style-guide.md) has the
-markup and the voice rules.
+A chapter is an ordered list of blocks — Noct's telling, an interruption from the room,
+a read-aloud, a table — which can be added, removed and reordered.
+[`publish/source/style-guide.md`](publish/source/style-guide.md) has the blocks and the
+voice rules.
+
+## Writing in the browser
+
+There is an editor at [`/admin`](https://tuesday-night-arguing.netlify.app/admin/).
+Log in, and chapters are forms: fields at the top, then the blocks, with **Add block**
+to drop an interruption wherever you want one. A preview beside it shows the real page.
+Saving commits to this repo and rebuilds the site; nothing appears publicly until
+**Published** is switched on.
 
 | Command | Does |
 |---|---|

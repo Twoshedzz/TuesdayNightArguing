@@ -5,6 +5,7 @@ import SiteHeader from '../components/SiteHeader.astro';
 import ChapterIllustration from '../components/ChapterIllustration.astro';
 import ChapterNav from '../components/ChapterNav.astro';
 import ChapterBodyLightbox from '../components/ChapterBodyLightbox.astro';
+import ChapterBlocks from '../components/ChapterBlocks.astro';
 
 interface Props {
   chapter: CollectionEntry<'chapters'>;
@@ -13,7 +14,6 @@ interface Props {
 }
 
 const { chapter, prev, next } = Astro.props;
-const { Content } = await chapter.render();
 const { title, chapter: chapterNumber, summary, coverIllustration } = chapter.data;
 ---
 
@@ -38,7 +38,7 @@ const { title, chapter: chapterNumber, summary, coverIllustration } = chapter.da
     )}
 
     <div class="chapter-body">
-      <Content />
+      <ChapterBlocks blocks={chapter.data.body} />
     </div>
 
     <ChapterBodyLightbox />

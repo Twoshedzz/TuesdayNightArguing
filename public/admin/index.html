@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex,nofollow" />
+    <title>Write — Tuesday Night Arguing</title>
+    <style>
+      /* Holding state while the editor loads, so the first thing seen is not a blank page. */
+      body {
+        margin: 0;
+        background: #f1ebdc;
+        color: #2a1d10;
+        font-family: Georgia, 'Times New Roman', serif;
+      }
+      #boot {
+        max-width: 28rem;
+        margin: 18vh auto 0;
+        padding-inline: 20px;
+        text-align: center;
+      }
+      #boot h1 {
+        font-size: 1.4rem;
+        font-weight: 400;
+        letter-spacing: 0.01em;
+        margin: 0 0 0.5rem;
+      }
+      #boot p {
+        font-size: 0.95rem;
+        color: #78644a;
+        margin: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="boot">
+      <h1>Tuesday Night Arguing</h1>
+      <p>Opening the editor…</p>
+    </div>
+
+    <!-- Identity first: it handles the invite link and the password reset redirect. -->
+    <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+    <script src="https://unpkg.com/decap-cms@3.16.3/dist/decap-cms.js"></script>
+    <script src="/admin/registers.js"></script>
+    <script>
+      // Decap mounts alongside this holding message rather than replacing it.
+      window.addEventListener('load', function () {
+        var seen = setInterval(function () {
+          if (document.querySelector('#nc-root, [class*="CMS"]')) {
+            var boot = document.getElementById('boot');
+            if (boot) boot.remove();
+            clearInterval(seen);
+          }
+        }, 300);
+        setTimeout(function () { clearInterval(seen); }, 15000);
+      });
+    </script>
+    <script>
+      // Decap replaces the page once it is ready; if it never does, say so rather
+      // than leaving someone looking at "Opening the editor…" forever.
+      setTimeout(function () {
+        var boot = document.getElementById('boot');
+        if (boot && boot.isConnected) {
+          boot.innerHTML =
+            '<h1>The editor did not load</h1>' +
+            '<p>Refresh the page. If it keeps happening, tell Pete — nothing you wrote is lost.</p>';
+        }
+      }, 12000);
+    </script>
+  </body>
+</html>

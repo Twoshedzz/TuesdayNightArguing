@@ -270,6 +270,18 @@ table.rulebook caption {
 .chapter-body thead th { border-bottom: 1.5px solid var(--ink); font-weight: 600; }
 .chapter-body tbody tr + tr td { border-top: 1px solid color-mix(in srgb, var(--rule) 55%, transparent); }
 
+/* period rulebook table, with the caption markdown tables cannot carry */
+.rulebook-table { margin: 1.4rem 0; overflow-x: auto; }
+.rulebook-table__caption {
+  font-family: var(--slab);
+  font-size: 0.74rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink);
+  margin: 0 0 0.45rem;
+}
+.rulebook-table table { margin: 0; }
+
 /* ── the room: an interruption, as the client it arrived in ────────── */
 .room {
   display: block;

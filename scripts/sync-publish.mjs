@@ -78,6 +78,24 @@ async function syncAssetTree(sourceDir, targetDir, relativePath = '') {
   return copied;
 }
 
+/**
+ * The editor's preview pane styles itself with the site's own stylesheet. Copying
+ * it on every build means the preview can never drift from the published page.
+ */
+async function syncEditorPreviewStyles() {
+  const from = path.join(root, 'src/styles/global.css');
+  const to = path.join(root, 'public/admin/preview.css');
+  try {
+    await ensureDir(path.dirname(to));
+    await cp(from, to);
+    console.log('editor   preview.css');
+    return 1;
+  } catch {
+    console.warn('editor   could not copy global.css into the admin preview');
+    return 0;
+  }
+}
+
 async function syncIllustrations() {
   await ensureDir(illustrationSources);
   await cleanDir(illustrationTargets);
@@ -95,6 +113,7 @@ async function main() {
   console.log('Syncing publish/ → site…\n');
   const chapters = await syncChapters();
   const images = await syncIllustrations();
+  await syncEditorPreviewStyles();
   console.log(`\nDone. ${chapters} chapter(s), ${images} illustration(s).`);
 }
 

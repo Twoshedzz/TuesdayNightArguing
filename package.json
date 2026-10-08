@@ -13,8 +13,7 @@
   },
   "dependencies": {
     "astro": "^5.7.0",
-    "remark-directive": "^4.0.0",
-    "unist-util-visit": "^5.1.0"
+    "marked": "^18.1.0"
   },
   "engines": {
     "node": ">=22.12.0"

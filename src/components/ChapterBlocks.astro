@@ -1,0 +1,112 @@
+---
+/**
+ * Renders a chapter's blocks.
+ *
+ * Four kinds, and the first two are the book's structure rather than its
+ * decoration:
+ *
+ *   telling       Noct's voice. Markdown.
+ *   interruption  The room, as the client it arrived in.
+ *   aloud         Something heard rather than seen; boxed, as in a module.
+ *   table         A period rulebook table.
+ *
+ * The line grammar inside an interruption is shared with the editor's preview in
+ * public/admin/registers.js — if you change one, change the other.
+ */
+import { marked } from 'marked';
+
+interface Props {
+  blocks: any[];
+}
+
+const { blocks = [] } = Astro.props;
+
+marked.setOptions({ gfm: true, breaks: false });
+
+const escape = (s = '') =>
+  String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+/** Emphasis only, applied after escaping so stray HTML stays inert. */
+const inline = (text = '') =>
+  escape(text)
+    .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+    .replace(/(^|[^*])\*([^*]+)\*/g, '$1<em>$2</em>');
+
+/**
+ *   **Torgan** 21:47 single.   a speaker, their time, and what they said
+ *   **Merlin** that's a kitchen.   the same, no time
+ *   *moved Noct to Room 4*    something the app said
+ *   anything else             a plain line
+ *
+ * System lines straight after a speaker join that speaker's message, which is how
+ * the app actually reads — several notices under one name.
+ */
+function renderLines(text = '') {
+  const out: string[] = [];
+  let lastWasSpeaker = false;
+
+  for (const line of String(text).split('\n').map((l) => l.trim()).filter(Boolean)) {
+    const system = line.match(/^\*([^*].*)\*$/);
+    if (system) {
+      const said = `<span class="sys">${inline(system[1])}</span>`;
+      if (lastWasSpeaker) {
+        out[out.length - 1] = out[out.length - 1].replace(/<\/p>$/, `<br>${said}</p>`);
+      } else {
+        out.push(`<p>${said}</p>`);
+      }
+      continue;
+    }
+
+    const speaker = line.match(/^\*\*([^*]+)\*\*\s*(?:(\d{1,2}:\d{2})\s*)?(.*)$/);
+    if (speaker) {
+      const [, name, time, said] = speaker;
+      out.push(
+        `<p><b>${inline(name)}</b>${time ? ` <span class="t">${time}</span>` : ''}` +
+          (said.trim() ? `<br>${inline(said)}` : '') +
+          `</p>`,
+      );
+      lastWasSpeaker = true;
+      continue;
+    }
+
+    out.push(`<p>${inline(line)}</p>`);
+    lastWasSpeaker = false;
+  }
+
+  return out.join('\n');
+}
+---
+
+{
+  blocks.map((block) => {
+    if (block.type === 'telling') {
+      return <Fragment set:html={marked.parse(block.text ?? '')} />;
+    }
+
+    if (block.type === 'interruption') {
+      return (
+        <aside class="room">
+          {block.channel && <p class="chan">{block.channel}</p>}
+          <Fragment set:html={renderLines(block.lines)} />
+        </aside>
+      );
+    }
+
+    if (block.type === 'aloud') {
+      return (
+        <aside class="read-aloud" set:html={marked.parse(block.text ?? '')} />
+      );
+    }
+
+    if (block.type === 'table') {
+      return (
+        <div class="rulebook-table">
+          {block.caption && <p class="rulebook-table__caption">{block.caption}</p>}
+          <Fragment set:html={marked.parse(block.markdown ?? '')} />
+        </div>
+      );
+    }
+
+    return null;
+  })
+}

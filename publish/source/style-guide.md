@@ -24,24 +24,26 @@ This voice is allowed to be sad; it should be, occasionally, without announcing 
 **Not this book:** *The Ruins of Ethium* is third person, warm, and for twelve-year-olds.
 This one is for adults and can swear, but swearing is seasoning rather than character.
 
-## Marking the two registers in markdown
+## A chapter is a list of blocks
 
-Two blocks do the work. No HTML, no class names.
+Not one lump of prose with markup buried in it. A chapter is an ordered list, and
+an interruption can be dropped anywhere — "it would be funny to have one here" is
+the point of the structure.
 
-**An interruption** — rendered as the chat client:
+Four kinds of block:
 
-```
-:::room{channel="general · voice connected · 5 of 5"}
-**DM** 21:31
-*moved Noct to Room 4*
+| Block | What it is |
+|---|---|
+| **Noct's telling** | His voice, afterwards. Ordinary prose. |
+| **Interruption — the room** | The real evening, as the client it arrived in. |
+| **Read-aloud — heard, not seen** | A voice, a vision, something read off a wall. Boxed. |
+| **Table** | A period rulebook table, with a caption markdown cannot carry. |
 
-**Torgan** 21:47 single. always single.
+Add, remove and reorder them in the editor at `/admin`, or by hand in the file.
 
-**Merlin** that's a kitchen. you want double.
-:::
-```
+### Inside an interruption
 
-Inside the block, one line each:
+One line each:
 
 | You write | You get |
 |---|---|
@@ -50,25 +52,9 @@ Inside the block, one line each:
 | `*moved Noct to Room 4*` | something the app said rather than a person |
 | anything else | a plain line |
 
-System lines written straight after a speaker belong to them — several notices
-under one name, which is how the app actually reads. The `channel` is optional and
-draws its own green dot; do not add one.
-
-**Something heard rather than seen** — rendered as a module's boxed read-aloud:
-
-```
-:::aloud
-Please. They're not listening. Come to the water.
-:::
-```
-
-Ordinary markdown tables are set as period rulebook tables. Use them for what the
-notebook already records — initiative, damage, treasure, watches — and do not invent
-tables for decoration.
-
-**One trap worth knowing.** A colon starts a block, so a bare `21:47` on its own in
-normal prose can confuse the parser. Inside a speaker line it is handled. Elsewhere,
-write the time in words or keep it inside a `:::room` block.
+System lines written straight after a speaker belong to them — several notices under
+one name, which is how the app actually reads. The channel line is optional and draws
+its own green dot; do not add one.
 
 ## Look
 
