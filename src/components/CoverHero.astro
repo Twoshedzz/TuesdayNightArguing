@@ -131,6 +131,22 @@ const { covers, eyebrow, title, lede, ctaLabel, ctaHref } = Astro.props;
    */
   const root = document.querySelector('[data-covers]');
   if (root) {
+    /**
+     * The cover choice is only written down if the reader has said yes to being
+     * remembered. It is a preference rather than a tracker — nothing leaves the
+     * browser either way — but a reader who declined has asked not to be kept, and
+     * that should mean all of it, not only the parts that suit us.
+     *
+     * Declining is not the end of the feature: the choice still works, it just
+     * lasts for the page rather than for the reader.
+     */
+    const mayRemember = () => {
+      try {
+        return window.localStorage.getItem('tna-analytics') === 'granted';
+      } catch {
+        return false;
+      }
+    };
     const plates = Array.from(root.querySelectorAll<HTMLElement>('[data-cover]'));
     const buttons = Array.from(root.querySelectorAll<HTMLButtonElement>('[data-cover-choose]'));
     const bar = root.querySelector<HTMLElement>('[data-cover-switch]');
@@ -151,7 +167,7 @@ const { covers, eyebrow, title, lede, ctaLabel, ctaHref } = Astro.props;
       for (const button of buttons) {
         button.setAttribute('aria-pressed', String(button.dataset.coverChoose === id));
       }
-      if (remember) {
+      if (remember && mayRemember()) {
         try {
           window.localStorage.setItem(KEY, id);
         } catch {
@@ -161,12 +177,33 @@ const { covers, eyebrow, title, lede, ctaLabel, ctaHref } = Astro.props;
     };
 
     let stored: string | null = null;
-    try {
-      stored = window.localStorage.getItem(KEY);
-    } catch {
-      /* undecided */
+    if (mayRemember()) {
+      try {
+        stored = window.localStorage.getItem(KEY);
+      } catch {
+        /* undecided */
+      }
     }
     if (stored) show(stored, false);
+
+    /**
+     * Consent can change after the page has loaded. Saying yes keeps whichever
+     * cover is on screen; saying no clears what was kept, rather than leaving it
+     * behind to be read on the next visit.
+     */
+    window.addEventListener('tna:consent', (event) => {
+      const answer = (event as CustomEvent).detail;
+      try {
+        if (answer === 'granted') {
+          const shown = plates.find((plate) => !plate.hidden);
+          if (shown?.dataset.cover) window.localStorage.setItem(KEY, shown.dataset.cover);
+        } else {
+          window.localStorage.removeItem(KEY);
+        }
+      } catch {
+        /* nothing kept either way */
+      }
+    });
 
     for (const button of buttons) {
       button.addEventListener('click', () => show(button.dataset.coverChoose ?? '', true));

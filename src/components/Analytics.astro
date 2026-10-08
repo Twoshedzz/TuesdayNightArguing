@@ -91,6 +91,8 @@ const gaId = import.meta.env.PUBLIC_GA_ID || GA_MEASUREMENT_ID;
             if (answer === 'granted' && window.gtag) {
               window.gtag('consent', 'update', { analytics_storage: 'granted' });
             }
+            // Anything else that keeps a preference needs to hear this.
+            window.dispatchEvent(new CustomEvent('tna:consent', { detail: answer }));
             bar.hidden = true;
           }
 
