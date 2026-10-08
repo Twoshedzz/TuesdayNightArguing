@@ -16,7 +16,9 @@
  * Claude or Pete. Every read and write is wrapped, because a private window
  * throws rather than returning null.
  */
-const gaId = import.meta.env.PUBLIC_GA_ID;
+import { GA_MEASUREMENT_ID } from '../lib/site';
+
+const gaId = import.meta.env.PUBLIC_GA_ID || GA_MEASUREMENT_ID;
 ---
 
 {
