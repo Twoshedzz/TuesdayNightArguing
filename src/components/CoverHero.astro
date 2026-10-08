@@ -521,13 +521,26 @@ const { covers, eyebrow, title, lede, ctaLabel, ctaHref } = Astro.props;
    * keep their light.
    */
   .plate--bleed .plate__art::after {
-    background: linear-gradient(
-      to right,
-      rgb(10 5 3 / 0.9) 0%,
-      rgb(10 5 3 / 0.72) 28%,
-      rgb(10 5 3 / 0.25) 52%,
-      rgb(10 5 3 / 0.1) 100%
-    );
+    background:
+      /*
+       * Solid black above the painting, fading out into the painting's own black
+       * sky below it. The strip has to be solid or the blurred backdrop shows its
+       * structure up there and draws the picture's top edge for the eye; and it has
+       * to fade rather than stop, or hiding one edge simply makes another.
+       */
+      linear-gradient(
+        to bottom,
+        #000 0,
+        #000 var(--headroom),
+        rgb(0 0 0 / 0) calc(var(--headroom) + 7rem)
+      ),
+      linear-gradient(
+        to right,
+        rgb(10 5 3 / 0.9) 0%,
+        rgb(10 5 3 / 0.72) 28%,
+        rgb(10 5 3 / 0.25) 52%,
+        rgb(10 5 3 / 0.1) 100%
+      );
   }
 
   /*
