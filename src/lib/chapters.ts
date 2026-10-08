@@ -2,12 +2,16 @@ import { getCollection, type CollectionEntry } from 'astro:content';
 
 export type Chapter = CollectionEntry<'chapters'>;
 
-export async function getPublishedChapters(): Promise<Chapter[]> {
+export async function getPublishedChapters(book?: number): Promise<Chapter[]> {
   const chapters = await getCollection('chapters', ({ id, data }) => {
-    return data.published && !id.startsWith('_');
+    if (!data.published || id.startsWith('_')) return false;
+    return book === undefined || data.book === book;
   });
 
-  return chapters.sort((a, b) => a.data.chapter - b.data.chapter);
+  // Book first, then chapter: the series reads in order even in one flat list.
+  return chapters.sort(
+    (a, b) => a.data.book - b.data.book || a.data.chapter - b.data.chapter,
+  );
 }
 
 export function getChapterNeighbors(

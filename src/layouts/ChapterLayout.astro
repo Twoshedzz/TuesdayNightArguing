@@ -14,8 +14,31 @@ interface Props {
 }
 
 const { chapter, prev, next } = Astro.props;
-const { title, chapter: chapterNumber, summary, coverIllustration } = chapter.data;
+const { title, chapter: chapterNumber, summary, coverIllustration, book } = chapter.data;
+
+const place = {
+  slug: chapter.slug,
+  book,
+  chapter: chapterNumber,
+  title,
+};
 ---
+
+<script is:inline define:vars={{ place }}>
+  /*
+   * Remember where the reader got to, so the cover can offer to put them back.
+   *
+   * Only if they agreed to be remembered — the same rule the cover choice follows.
+   * It never leaves the browser, and a reader who declined simply gets no offer.
+   */
+  try {
+    if (window.localStorage.getItem('tna-analytics') === 'granted') {
+      window.localStorage.setItem('tna-reading', JSON.stringify(place));
+    }
+  } catch (e) {
+    /* private window or blocked storage — nothing to remember with */
+  }
+</script>
 
 <BaseLayout title={title} description={summary}>
   <SiteHeader slot="header" />

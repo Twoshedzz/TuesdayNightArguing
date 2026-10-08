@@ -44,6 +44,12 @@ const chapters = defineCollection({
   type: 'content',
   schema: z.object({
     title: z.string(),
+    /**
+     * Which book this chapter is in. The campaign is a series: book one is the
+     * 21 chapters from the notebook, book two is the table sitting down again.
+     * Without this, book two's chapter 1 collides with book one's.
+     */
+    book: z.number().default(1),
     chapter: z.number(),
     summary: z.string().optional(),
     coverIllustration: z.string().optional(),

@@ -27,7 +27,7 @@ blocks:
       *moved Torgan to Room 2*
       *moved Shae to Room 3*
       *moved Noct to Room 4*
-      **Noct** 21:32 It is the oldest trick there is and I have watched it done. It still works, because the loneliness is real. I am in a box room in Lancashire with the door shut, listening to a man describe a voice that wants me to come to the water, and there is nobody else on the call.
+      **Noct** 21:32 It is the oldest trick there is and I have watched it done. It still works, because the loneliness is real. I am in a box room in York with the door shut, listening to a man describe a voice that wants me to come to the water, and there is nobody else on the call.
   - type: telling
     text: |-
       The water broke. It came up out of it — three tentacles, each tipped with a spiked

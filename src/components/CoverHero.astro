@@ -50,6 +50,15 @@ interface Cover {
   bleed?: boolean;
   /** background-position, for keeping the right part of the picture in frame. */
   focus?: string;
+  /** This book's own strapline, if it differs from the shared one. */
+  strapline?: string;
+  /** Where this book starts. Omit for a book that cannot be read yet. */
+  ctaLabel?: string;
+  ctaHref?: string;
+  /** Shown in place of the way in — "Coming at Christmas" and the like. */
+  status?: string;
+  /** Which book this cover is, matching the chapter frontmatter. */
+  book?: number;
 }
 
 interface Props {
@@ -68,9 +77,10 @@ const { covers, eyebrow, title, lede, ctaLabel, ctaHref } = Astro.props;
   {
     covers.map((cover, i) => (
       <section
-        class:list={['plate', cover.bleed && 'plate--bleed']}
+        class:list={['plate', cover.bleed && 'plate--bleed', cover.status && 'plate--flashed']}
         data-cover={cover.id}
         data-bleed={cover.bleed ? 'true' : undefined}
+        data-book={cover.book}
         hidden={i !== 0}
         style={`--plate-art: url('${cover.image}'); --plate-aspect: ${cover.aspect}; --plate-max: ${cover.maxWidth}; --plate-aspect-narrow: ${cover.aspectNarrow ?? cover.aspect}; --scrim-top: ${cover.scrimTop ?? '44%'}; --scrim-bottom: ${cover.scrimBottom ?? '48%'}; --plate-focus: ${cover.focus ?? 'center'}`}
       >
@@ -92,22 +102,37 @@ const { covers, eyebrow, title, lede, ctaLabel, ctaHref } = Astro.props;
           )}
 
           <footer class="plate__foot">
-            {lede && cover.showLede !== false && <p class="plate__lede">{lede}</p>}
-            {ctaHref && ctaLabel && (
-              <a class="plate__cta" href={ctaHref}>
-                {ctaLabel}
-              </a>
+            {cover.showLede !== false && (cover.strapline ?? lede) && (
+              <p class="plate__lede">{cover.strapline ?? lede}</p>
             )}
+
+            {/*
+              A book you can read gets a way in. One you cannot says so on a flash
+              across the corner instead — nothing button-shaped that isn't a button.
+            */}
+            {!cover.status &&
+              (cover.ctaHref ?? ctaHref) &&
+              (cover.ctaLabel ?? ctaLabel) && (
+                <a class="plate__cta" href={cover.ctaHref ?? ctaHref}>
+                  {cover.ctaLabel ?? ctaLabel}
+                </a>
+              )}
           </footer>
         </div>
+
+        {cover.status && <p class="plate__flash">{cover.status}</p>}
       </section>
     ))
   }
 
   {
     covers.length > 1 && (
+      <p class="covers__resume" data-resume hidden>
+        <a href="/" data-resume-link></a>
+      </p>
+
       <div class="covers__switch" data-cover-switch hidden>
-        <span class="covers__label">Cover</span>
+        <span class="covers__label">Book</span>
         {covers.map((cover, i) => (
           <button
             type="button"
@@ -125,21 +150,23 @@ const { covers, eyebrow, title, lede, ctaLabel, ctaHref } = Astro.props;
 
 <script>
   /**
-   * Swap which plate is shown, and remember it. Storage is per browser and can
-   * throw outright in a private window, so every touch of it is wrapped and the
-   * page renders correctly when it fails.
+   * The switch chooses which book you are looking at. What is remembered is not
+   * that choice but where you got to reading — so coming back offers you your
+   * place rather than a picture you once clicked.
+   *
+   * Nothing is written unless the reader agreed to be remembered, and none of it
+   * leaves their browser. Storage can throw outright in a private window, so every
+   * touch of it is wrapped and the page works without it.
    */
   const root = document.querySelector('[data-covers]');
   if (root) {
-    /**
-     * The cover choice is only written down if the reader has said yes to being
-     * remembered. It is a preference rather than a tracker — nothing leaves the
-     * browser either way — but a reader who declined has asked not to be kept, and
-     * that should mean all of it, not only the parts that suit us.
-     *
-     * Declining is not the end of the feature: the choice still works, it just
-     * lasts for the page rather than for the reader.
-     */
+    const PLACE = 'tna-reading';
+    const plates = Array.from(root.querySelectorAll<HTMLElement>('[data-cover]'));
+    const buttons = Array.from(root.querySelectorAll<HTMLButtonElement>('[data-cover-choose]'));
+    const bar = root.querySelector<HTMLElement>('[data-cover-switch]');
+    const resume = root.querySelector<HTMLElement>('[data-resume]');
+    const resumeLink = root.querySelector<HTMLAnchorElement>('[data-resume-link]');
+
     const mayRemember = () => {
       try {
         return window.localStorage.getItem('tna-analytics') === 'granted';
@@ -147,66 +174,86 @@ const { covers, eyebrow, title, lede, ctaLabel, ctaHref } = Astro.props;
         return false;
       }
     };
-    const plates = Array.from(root.querySelectorAll<HTMLElement>('[data-cover]'));
-    const buttons = Array.from(root.querySelectorAll<HTMLButtonElement>('[data-cover-choose]'));
-    const bar = root.querySelector<HTMLElement>('[data-cover-switch]');
-    const KEY = 'tna-cover';
 
-    const show = (id: string, remember: boolean) => {
-      const match = plates.some((p) => p.dataset.cover === id);
-      if (!match) return;
+    const readPlace = () => {
+      if (!mayRemember()) return null;
+      try {
+        const raw = window.localStorage.getItem(PLACE);
+        return raw ? JSON.parse(raw) : null;
+      } catch {
+        return null;
+      }
+    };
+
+    const show = (id: string) => {
+      if (!plates.some((plate) => plate.dataset.cover === id)) return;
 
       for (const plate of plates) plate.hidden = plate.dataset.cover !== id;
+      for (const button of buttons) {
+        button.setAttribute('aria-pressed', String(button.dataset.coverChoose === id));
+      }
 
       // Only the bleed cover runs to the top of the page with the masthead over it.
-      const chosen = plates.find((p) => p.dataset.cover === id);
+      const chosen = plates.find((plate) => plate.dataset.cover === id);
       document
         .querySelector('.site-shell')
         ?.classList.toggle('site-shell--hero', chosen?.dataset.bleed === 'true');
 
-      for (const button of buttons) {
-        button.setAttribute('aria-pressed', String(button.dataset.coverChoose === id));
-      }
-      if (remember && mayRemember()) {
-        try {
-          window.localStorage.setItem(KEY, id);
-        } catch {
-          /* the choice holds for this page only */
-        }
+      // Choosing a book changes what there is to read, not only the picture.
+      for (const panel of document.querySelectorAll<HTMLElement>('[data-book-panel]')) {
+        panel.hidden = panel.dataset.bookPanel !== id;
       }
     };
 
-    let stored: string | null = null;
-    if (mayRemember()) {
-      try {
-        stored = window.localStorage.getItem(KEY);
-      } catch {
-        /* undecided */
+    /** Offer the reader their place back, on the book it belongs to. */
+    const offerPlace = () => {
+      const place = readPlace();
+      if (!place?.slug || !resume || !resumeLink) {
+        if (resume) resume.hidden = true;
+        return;
       }
+
+      const plate = plates.find((p) => Number(p.dataset.book) === Number(place.book));
+      if (plate?.dataset.cover) show(plate.dataset.cover);
+
+      const label = place.chapter === 0 ? 'the prologue' : `chapter ${place.chapter}`;
+      resumeLink.href = `/chapters/${place.slug}/`;
+      resumeLink.textContent = place.title
+        ? `Carry on from ${label} — ${place.title}`
+        : `Carry on from ${label}`;
+      resume.hidden = false;
+    };
+
+    offerPlace();
+
+    for (const button of buttons) {
+      button.addEventListener('click', () => show(button.dataset.coverChoose ?? ''));
     }
-    if (stored) show(stored, false);
 
     /**
-     * Consent can change after the page has loaded. Saying yes keeps whichever
-     * cover is on screen; saying no clears what was kept, rather than leaving it
-     * behind to be read on the next visit.
+     * Consent can change after the page has loaded. Withdrawing it clears the place
+     * that was kept and takes the offer away, rather than leaving it to be read on
+     * the next visit.
      */
     window.addEventListener('tna:consent', (event) => {
       const answer = (event as CustomEvent).detail;
       try {
         if (answer === 'granted') {
-          const shown = plates.find((plate) => !plate.hidden);
-          if (shown?.dataset.cover) window.localStorage.setItem(KEY, shown.dataset.cover);
+          offerPlace();
         } else {
-          window.localStorage.removeItem(KEY);
+          window.localStorage.removeItem(PLACE);
+          if (resume) resume.hidden = true;
         }
       } catch {
         /* nothing kept either way */
       }
     });
 
-    for (const button of buttons) {
-      button.addEventListener('click', () => show(button.dataset.coverChoose ?? '', true));
+    // The old key remembered a picture. It is not what we keep any more.
+    try {
+      window.localStorage.removeItem('tna-cover');
+    } catch {
+      /* nothing to tidy */
     }
 
     // Only now is the control worth showing.
@@ -283,6 +330,11 @@ const { covers, eyebrow, title, lede, ctaLabel, ctaHref } = Astro.props;
     color: #f5ead6;
   }
 
+  /* The flash cuts across the top corner, so the head starts below it. */
+  .plate--flashed .plate__type {
+    padding-top: 11cqi;
+  }
+
   .plate__eyebrow {
     margin: 0 0 1.4cqi;
     font-family: var(--ui, system-ui, sans-serif);
@@ -296,17 +348,34 @@ const { covers, eyebrow, title, lede, ctaLabel, ctaHref } = Astro.props;
     text-shadow: 0 1px 3px rgb(0 0 0 / 0.85);
   }
 
+  /*
+   * Same register as the masthead over the bleed cover: heavy gold caps cut out of
+   * the picture with a dark edge. The edge is both the look and what keeps the
+   * words legible over paint, which is why the scrims can stay light.
+   *
+   * Caps run wider than mixed case, so the size steps down to suit.
+   */
   .plate__title {
     margin: 0;
     font-family: var(--slab, Georgia, serif);
     font-weight: 400;
-    font-size: clamp(1.9rem, 11cqi, 5.2rem);
-    line-height: 0.95;
-    letter-spacing: -0.01em;
+    font-size: clamp(1.6rem, 9cqi, 4.2rem);
+    line-height: 1.02;
+    text-transform: uppercase;
+    letter-spacing: 0.005em;
     text-wrap: balance;
+    color: #f0c24a;
     text-shadow:
-      0 2px 4px rgb(0 0 0 / 0.9),
-      0 0 26px rgb(0 0 0 / 0.55);
+      -1px -1px 0 #1a0d04,
+      1px -1px 0 #1a0d04,
+      -1px 1px 0 #1a0d04,
+      1px 1px 0 #1a0d04,
+      -2px 0 0 #1a0d04,
+      2px 0 0 #1a0d04,
+      0 -2px 0 #1a0d04,
+      0 2px 0 #1a0d04,
+      0 3px 6px rgb(0 0 0 / 0.85),
+      0 0 28px rgb(0 0 0 / 0.5);
   }
 
   .plate__lede {
@@ -339,6 +408,43 @@ const { covers, eyebrow, title, lede, ctaLabel, ctaHref } = Astro.props;
     color: #241a12;
   }
 
+  /*
+   * A flash across the top corner, the way a paperback announces itself. Sized in
+   * cqi so it keeps its proportion to the plate, and clipped by the plate's own
+   * overflow so the ends disappear off the corner rather than being drawn to fit.
+   */
+  .plate__flash {
+    position: absolute;
+    top: 9cqi;
+    left: -15cqi;
+    width: 54cqi;
+    margin: 0;
+    padding: 1.2cqi 0;
+    transform: rotate(-45deg);
+    background: #f0c24a;
+    color: #1a0d04;
+    font-family: var(--ui, system-ui, sans-serif);
+    font-size: clamp(0.55rem, 2cqi, 0.9rem);
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    text-align: center;
+    box-shadow: 0 2px 8px rgb(0 0 0 / 0.5);
+    z-index: 4;
+  }
+
+  /*
+   * A bleed plate is far wider than it is tall, so cqi — a share of its width —
+   * would throw the flash halfway across the band. It takes fixed sizing there.
+   */
+  .plate--bleed .plate__flash {
+    top: 3.2rem;
+    left: -5.5rem;
+    width: 19rem;
+    padding: 0.4rem 0;
+    font-size: 0.72rem;
+  }
+
   /* ── full bleed ─────────────────────────────────────────────────────────── */
 
   /*
@@ -357,7 +463,13 @@ const { covers, eyebrow, title, lede, ctaLabel, ctaHref } = Astro.props;
     max-width: none;
     margin-inline: -20px;
     aspect-ratio: auto;
-    height: clamp(24rem, 82vh, 48rem);
+    /*
+     * The headroom is added to the band rather than taken out of the picture.
+     * The art is fitted to the band minus this strip, so without the extra height
+     * the clearance above the demon would come straight off the painting's size.
+     */
+    --headroom: clamp(2rem, 5.5vh, 3.5rem);
+    height: calc(clamp(24rem, 74vh, 44rem) + var(--headroom));
     border-left: 0;
     border-right: 0;
   }
@@ -375,8 +487,22 @@ const { covers, eyebrow, title, lede, ctaLabel, ctaHref } = Astro.props;
     background-size: contain;
     background-position: center;
     background-repeat: no-repeat;
+    /*
+     * Headroom for the masthead. The picture is fitted to its content box, so
+     * padding at the top makes it a little smaller and sits it lower, leaving a
+     * clear strip between the title and the top of the demon's head. The strip
+     * is not empty — the blurred backdrop shows through it.
+     */
+    padding-top: var(--headroom);
+    background-origin: content-box;
   }
 
+  /*
+   * Dark enough to meet the painting's own black without a seam. The picture sits
+   * lower than the band's top, so above it only the backdrop shows — and anything
+   * lighter than the painting's ground draws a visible line straight across the
+   * band where the two meet.
+   */
   .plate--bleed .plate__backdrop {
     display: block;
     position: absolute;
@@ -384,7 +510,7 @@ const { covers, eyebrow, title, lede, ctaLabel, ctaHref } = Astro.props;
     background-image: var(--plate-art);
     background-size: cover;
     background-position: center;
-    filter: blur(32px) brightness(0.42) saturate(0.75);
+    filter: blur(36px) brightness(0.22) saturate(0.7);
     /* Scaled up so the blur's soft edge never reaches the band's own edge. */
     transform: scale(1.12);
   }
@@ -479,6 +605,8 @@ const { covers, eyebrow, title, lede, ctaLabel, ctaHref } = Astro.props;
       inset: auto;
       aspect-ratio: 3 / 2;
       background-size: cover;
+      /* The masthead is above the picture here, not over it. */
+      padding-top: 0;
     }
 
     /* Nothing is written on the picture now, so it keeps all of its own light. */
@@ -508,16 +636,20 @@ const { covers, eyebrow, title, lede, ctaLabel, ctaHref } = Astro.props;
   /* ── the switch ─────────────────────────────────────────────────────────── */
 
   /* Built for a shelf of them, not a pair: six labels wrap rather than squeeze. */
+  /*
+   * This is navigation, not a preference — it decides which book you are reading.
+   * It is sized to say so.
+   */
   .covers__switch {
     display: flex;
     align-items: baseline;
     justify-content: center;
     flex-wrap: wrap;
-    gap: 0.45rem 0.9rem;
-    margin-top: 0.85rem;
+    gap: 0.5rem 1.4rem;
+    margin-top: 1.4rem;
     font-family: var(--ui, system-ui, sans-serif);
-    font-size: 0.72rem;
-    letter-spacing: 0.1em;
+    font-size: 0.95rem;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
   }
 
@@ -534,10 +666,11 @@ const { covers, eyebrow, title, lede, ctaLabel, ctaHref } = Astro.props;
   .covers__button {
     appearance: none;
     border: 0;
-    border-bottom: 1px solid transparent;
+    border-bottom: 2px solid transparent;
     background: none;
-    padding: 0 0 0.15rem;
+    padding: 0.1rem 0 0.3rem;
     font: inherit;
+    font-weight: 600;
     color: var(--ink-soft, #78644a);
     cursor: pointer;
   }
@@ -549,6 +682,27 @@ const { covers, eyebrow, title, lede, ctaLabel, ctaHref } = Astro.props;
   .covers__button[aria-pressed='true'] {
     color: var(--orange, #b4551f);
     border-bottom-color: var(--orange, #b4551f);
+  }
+
+  .covers__label {
+    font-size: 0.78rem;
+    letter-spacing: 0.14em;
+  }
+
+  .covers__resume {
+    margin: 1.2rem 0 0;
+    text-align: center;
+    font-family: var(--ui, system-ui, sans-serif);
+    font-size: 0.85rem;
+  }
+
+  .covers__resume[hidden] {
+    display: none !important;
+  }
+
+  .covers__resume a {
+    color: var(--orange, #b4551f);
+    text-underline-offset: 0.25em;
   }
 
   /*

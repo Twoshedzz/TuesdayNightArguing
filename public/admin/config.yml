@@ -47,14 +47,26 @@ collections:
     create: true
     delete: false
     # 09-the-thing-in-the-water — the number orders the book, the words make the URL
-    slug: '{{fields.chapter}}-{{title}}'
-    summary: '{{chapter}} · {{title}}'
-    sortable_fields: ['chapter', 'title']
+    # book-01-09 — the book keeps two series' chapter 1s from colliding
+    slug: 'book-{{fields.book}}-{{fields.chapter}}-{{title}}'
+    summary: 'Book {{book}} · {{chapter}} · {{title}}'
+    sortable_fields: ['book', 'chapter', 'title']
     fields:
       - label: 'Title'
         name: 'title'
         widget: 'string'
         hint: 'The chapter title, as it appears at the top of the page.'
+
+      - label: 'Book'
+        name: 'book'
+        widget: 'select'
+        default: 1
+        options:
+          - { label: 'Book one — the first campaign', value: 1 }
+          - { label: 'Book two — the one being played now', value: 2 }
+        hint: >-
+          Which book this chapter belongs to. Each book counts its chapters from
+          one, so this is what keeps the two series apart.
 
       - label: 'Chapter number'
         name: 'chapter'

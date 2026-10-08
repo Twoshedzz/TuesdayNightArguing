@@ -5,8 +5,24 @@ import SiteHeader from '../components/SiteHeader.astro';
 import { getPublishedChapters, formatChapterLabel } from '../lib/chapters';
 import { SITE_TITLE } from '../lib/site';
 
-const chapters = await getPublishedChapters();
-const firstChapter = chapters[0];
+/**
+ * One panel of chapters per book, shown and hidden by the same switch that
+ * changes the cover — so choosing a book changes what there is to read, not just
+ * the picture above it.
+ */
+const books = [
+  { id: 'book-one', number: 1 },
+  { id: 'book-two', number: 2 },
+];
+
+const chaptersByBook = await Promise.all(
+  books.map(async (book) => ({
+    ...book,
+    chapters: await getPublishedChapters(book.number),
+  })),
+);
+
+const firstChapter = chaptersByBook[0].chapters[0];
 ---
 
 <BaseLayout title={SITE_TITLE} coverHero>
@@ -15,8 +31,9 @@ const firstChapter = chapters[0];
     <CoverHero
     covers={[
       {
-        id: 'ad-d-1e',
-        label: '1e',
+        id: 'book-one',
+        label: 'One',
+        book: 1,
         image: '/illustrations/cover/cover-the-pit.jpg',
         bleed: true,
         aspect: '3 / 2',
@@ -27,12 +44,16 @@ const firstChapter = chapters[0];
         showLede: true,
       },
       {
-        id: 'ad-d-1e-rev',
-        label: '1e revised',
+        id: 'book-two',
+        label: 'Two',
+        book: 2,
         image: '/illustrations/cover/cover-noct-in-the-doorway.jpg',
         aspect: '5 / 7',
         aspectNarrow: '4 / 5',
         maxWidth: '42rem',
+        strapline: 'The table sits down again. Nobody has learned anything.',
+        // No way in: this one has not been played yet.
+        status: 'Coming at Christmas',
       },
     ]}
     eyebrow="A Dungeons &amp; Dragons campaign, told twice"
@@ -45,30 +66,36 @@ const firstChapter = chapters[0];
   <div class="container container--cover">
     <p class="cover__lede">
       Noct Strigbart, dwarf bard, recounts the finest hour of his life. The man playing
-      him is in a box room in Lancashire with the door shut, and somebody's wife has just
+      him is in a box room in York with the door shut, and somebody's wife has just
       come in to ask about radiators.
     </p>
 
-    {!firstChapter && <p class="cover__empty">No chapters published yet.</p>}
-
     {
-      chapters.length > 0 && (
-        <ul class="chapter-list">
-          {chapters.map((chapter) => (
-            <li>
-              <a href={`/chapters/${chapter.slug}/`}>
-                <span class="chapter-list__number">
-                  {formatChapterLabel(chapter.data.chapter)}
-                </span>
-                <span class="chapter-list__title">{chapter.data.title}</span>
-                {chapter.data.summary && (
-                  <span class="chapter-list__summary">{chapter.data.summary}</span>
-                )}
-              </a>
-            </li>
-          ))}
-        </ul>
-      )
+      chaptersByBook.map((book, i) => (
+        <section data-book-panel={book.id} hidden={i !== 0}>
+          {book.chapters.length > 0 ? (
+            <ul class="chapter-list">
+              {book.chapters.map((chapter) => (
+                <li>
+                  <a href={`/chapters/${chapter.slug}/`}>
+                    <span class="chapter-list__number">
+                      {formatChapterLabel(chapter.data.chapter)}
+                    </span>
+                    <span class="chapter-list__title">{chapter.data.title}</span>
+                    {chapter.data.summary && (
+                      <span class="chapter-list__summary">{chapter.data.summary}</span>
+                    )}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p class="cover__empty">
+              Not written yet — the table has not sat down. Book one is where to start.
+            </p>
+          )}
+        </section>
+      ))
     }
   </div>
 </BaseLayout>
