@@ -19,7 +19,7 @@ blocks:
       himself, fell again, and landed with a crunch every one of us heard.
   - type: interruption
     channel: ""
-    lines: ""
+    lines: this is the text insert
   - type: telling
     text: >-
       Below us the water did not move the way water moves. It carried a skin of
