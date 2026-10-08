@@ -19,14 +19,13 @@ const firstChapter = chapters[0];
           id: 'first',
           label: 'First edition',
           image: '/illustrations/cover/cover-the-pit.jpg',
+          bleed: true,
           aspect: '3 / 2',
           aspectNarrow: '1 / 1',
-          maxWidth: '54rem',
-          // Wide and busy: no strapline over the figures, and a scrim that reaches
-          // only as far as the button needs.
-          showLede: false,
-          scrimTop: '40%',
-          scrimBottom: '34%',
+          maxWidth: 'none',
+          // Keeps the figures in frame when the band crops top and bottom.
+          focus: 'center 46%',
+          showLede: true,
         },
         {
           id: 'second',

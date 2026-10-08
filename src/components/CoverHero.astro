@@ -41,6 +41,15 @@ interface Cover {
    * so the art is worth more than the repetition.
    */
   showLede?: boolean;
+  /**
+   * Break out of the page column and run edge to edge. A bleed plate is a band
+   * rather than a book: it caps its height instead of holding proportions, sets
+   * its type to one side so the picture keeps its middle, and scales from the
+   * viewport rather than from its own width.
+   */
+  bleed?: boolean;
+  /** background-position, for keeping the right part of the picture in frame. */
+  focus?: string;
 }
 
 interface Props {
@@ -59,10 +68,10 @@ const { covers, eyebrow, title, lede, ctaLabel, ctaHref } = Astro.props;
   {
     covers.map((cover, i) => (
       <section
-        class="plate"
+        class:list={['plate', cover.bleed && 'plate--bleed']}
         data-cover={cover.id}
         hidden={i !== 0}
-        style={`--plate-art: url('${cover.image}'); --plate-aspect: ${cover.aspect}; --plate-max: ${cover.maxWidth}; --plate-aspect-narrow: ${cover.aspectNarrow ?? cover.aspect}; --scrim-top: ${cover.scrimTop ?? '44%'}; --scrim-bottom: ${cover.scrimBottom ?? '48%'}`}
+        style={`--plate-art: url('${cover.image}'); --plate-aspect: ${cover.aspect}; --plate-max: ${cover.maxWidth}; --plate-aspect-narrow: ${cover.aspectNarrow ?? cover.aspect}; --scrim-top: ${cover.scrimTop ?? '44%'}; --scrim-bottom: ${cover.scrimBottom ?? '48%'}; --plate-focus: ${cover.focus ?? 'center'}`}
       >
         <div class="plate__art" aria-hidden="true" />
 
@@ -177,7 +186,7 @@ const { covers, eyebrow, title, lede, ctaLabel, ctaHref } = Astro.props;
     inset: 0;
     background-image: var(--plate-art);
     background-size: cover;
-    background-position: center;
+    background-position: var(--plate-focus, center);
   }
 
   /*
@@ -268,6 +277,112 @@ const { covers, eyebrow, title, lede, ctaLabel, ctaHref } = Astro.props;
   .plate__cta:focus-visible {
     background: #e8b88a;
     color: #241a12;
+  }
+
+  /* ── full bleed ─────────────────────────────────────────────────────────── */
+
+  /*
+   * Edge to edge, out of the page column. A band has no fixed proportions, so it
+   * takes a capped height instead and lets the picture crop — which is why the
+   * focus point is settable per cover.
+   */
+  .plate--bleed {
+    width: 100vw;
+    max-width: none;
+    margin-left: calc(50% - 50vw);
+    aspect-ratio: auto;
+    height: clamp(21rem, 68vh, 40rem);
+    border-left: 0;
+    border-right: 0;
+  }
+
+  /*
+   * One wash from the left rather than two from the ends: the picture is dark rock
+   * at the sides and lit in the middle, so the type sits on the rock and the figure
+   * keeps its light.
+   */
+  .plate--bleed .plate__art::after {
+    background: linear-gradient(
+      to right,
+      rgb(10 5 3 / 0.9) 0%,
+      rgb(10 5 3 / 0.72) 28%,
+      rgb(10 5 3 / 0.25) 52%,
+      rgb(10 5 3 / 0.1) 100%
+    );
+  }
+
+  /*
+   * Type to the top, as on a printed cover. It costs nothing here: the picture is
+   * dark rock down its left edge at every height, so the title never needs the sky
+   * and the band never needs extra canvas above the art.
+   */
+  .plate--bleed .plate__type {
+    justify-content: flex-start;
+    align-items: flex-start;
+    text-align: left;
+    max-width: 78rem;
+    margin: 0 auto;
+    padding: clamp(1.75rem, 5vh, 3.25rem) clamp(1.25rem, 5vw, 4rem) 2rem;
+  }
+
+  /* The way in stays low, where a publisher's mark would be. */
+  .plate--bleed .plate__foot {
+    margin-top: auto;
+  }
+
+  .plate--bleed .plate__head,
+  .plate--bleed .plate__foot {
+    max-width: 30rem;
+  }
+
+  /*
+   * Sized from the viewport, not from the plate: 11cqi of a full-width band is a
+   * title four hundred pixels tall.
+   */
+  .plate--bleed .plate__eyebrow {
+    font-size: clamp(0.6rem, 1.15vw, 0.85rem);
+    letter-spacing: 0.16em;
+    margin-bottom: 0.75rem;
+  }
+
+  .plate--bleed .plate__title {
+    font-size: clamp(2.1rem, 5.6vw, 4.4rem);
+    line-height: 0.98;
+  }
+
+  .plate--bleed .plate__lede {
+    margin: 1rem 0 0;
+    font-size: clamp(0.9rem, 1.5vw, 1.15rem);
+  }
+
+
+
+  .plate--bleed .plate__cta {
+    padding: 0.7rem 1.6rem;
+    font-size: clamp(0.72rem, 1.1vw, 0.9rem);
+  }
+
+  /* On a phone the band is nearly square, so the type goes back to the middle. */
+  @media (max-width: 34rem) {
+    .plate--bleed .plate__type {
+      align-items: center;
+      text-align: center;
+    }
+
+    .plate--bleed .plate__art::after {
+      background: linear-gradient(
+        to top,
+        rgb(10 5 3 / 0.86) 0%,
+        rgb(10 5 3 / 0.55) 40%,
+        rgb(10 5 3 / 0.35) 100%
+      );
+    }
+
+    /* Tracked out, this line reaches both edges of a phone. */
+    .plate--bleed .plate__eyebrow {
+      letter-spacing: 0.1em;
+      font-size: 0.6rem;
+    }
   }
 
   /* ── the switch ─────────────────────────────────────────────────────────── */
