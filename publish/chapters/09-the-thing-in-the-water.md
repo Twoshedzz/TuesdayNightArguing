@@ -32,7 +32,7 @@ it, and under the filth something took up more room than it ought to have.
 Garnel heard it first, and tipped his head the way a dog does. Then Torgan. Then me.
 
 <aside class="room">
-<p class="chan">general · voice connected · 6 of 6</p>
+<p class="chan">general · voice connected · 5 of 5</p>
 <p><b>DM</b> <span class="t">21:31</span><br><span class="sys">moved Torgan to Room 2</span><br><span class="sys">moved Shae to Room 3</span><br><span class="sys">moved Noct to Room 4</span></p>
 <p><b>Noct</b> <span class="t">21:32</span><br>It is the oldest trick there is and I have watched it done. It still works, because the loneliness is real. I am in a box room in Lancashire with the door shut, listening to a man describe a voice that wants me to come to the water, and there is nobody else on the call.</p>
 </aside>
@@ -56,7 +56,7 @@ I want that written down. *I did not run.*
 <p class="chan">general · someone has not muted</p>
 <p><b>Torgan</b> <span class="t">21:47</span><br>single. always single.</p>
 <p><b>Merlin</b> <span class="t">21:47</span><br>that's a kitchen. you want double.</p>
-<p><b>Noct</b> <span class="t">21:48</span><br>A door went somewhere in the Midlands and a woman's voice arrived in all six rooms at once, asking whether we wanted the single panel or the double. Nobody muted. Nobody apologised. Nobody stopped. Somewhere under it all a dwarf was about to be eaten and six grown men were costing a central heating job.</p>
+<p><b>Noct</b> <span class="t">21:48</span><br>A door went somewhere in the Midlands and a woman's voice arrived in all five rooms at once, asking whether we wanted the single panel or the double. Nobody muted. Nobody apologised. Nobody stopped. Somewhere under it all a dwarf was about to be eaten and five grown men were costing a central heating job.</p>
 </aside>
 
 A bard holds a room by knowing when to stop talking. I have never once known when to

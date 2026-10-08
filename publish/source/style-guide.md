@@ -32,7 +32,7 @@ An interruption — rendered as the chat client:
 
 ```html
 <aside class="room">
-<p class="chan">general · voice connected · 6 of 6</p>
+<p class="chan">general · voice connected · 5 of 5</p>
 <p><b>Torgan</b> <span class="t">21:47</span><br>single. always single.</p>
 <p><span class="sys">moved Noct to Room 4</span></p>
 </aside>
