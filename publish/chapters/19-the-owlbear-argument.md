@@ -2,7 +2,7 @@
 title: "The Owlbear Argument"
 chapter: 19
 summary: "Two owlbears, one of them asleep, and an hour of our lives spent on whether a bag of holding would go over its head."
-published: false
+published: true
 blocks:
   - type: telling
     text: |-

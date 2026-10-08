@@ -2,7 +2,7 @@
 title: "The Vote"
 chapter: 13
 summary: "Nine grimlocks, two dwarves on giant spiders, and five opinions about it."
-published: false
+published: true
 blocks:
   - type: telling
     text: |-

@@ -2,7 +2,7 @@
 title: "Sixty-Two Miles East"
 chapter: 2
 summary: "An audience at the keep, eighty gold, and a bounty paid by the ear."
-published: false
+published: true
 blocks:
   - type: telling
     text: |-

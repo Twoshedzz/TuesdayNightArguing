@@ -2,7 +2,7 @@
 title: "Five Hundred Gold"
 chapter: 21
 summary: "We were paid, promoted, and given four more reasons to leave. End of the first book."
-published: false
+published: true
 blocks:
   - type: telling
     text: |-

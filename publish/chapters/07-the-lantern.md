@@ -2,7 +2,7 @@
 title: "The Lantern"
 chapter: 7
 summary: "The morning after deciding I was a monster, the party cut a head off a corpse and lowered it down a hole on a rope."
-published: false
+published: true
 blocks:
   - type: telling
     text: |-

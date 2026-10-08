@@ -2,7 +2,7 @@
 title: "The Road Fills Up"
 chapter: 20
 summary: "We came home with a bag of magic stones and found that the world had moved without us."
-published: false
+published: true
 blocks:
   - type: telling
     text: |-

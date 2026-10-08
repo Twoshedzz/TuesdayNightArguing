@@ -2,7 +2,7 @@
 title: "Moradin's Hammer Is Missing"
 chapter: 12
 summary: "The stonework changes, a shrine has been desecrated, and a dark dwarf gets bigger."
-published: false
+published: true
 blocks:
   - type: telling
     text: |-

@@ -2,7 +2,7 @@
 title: "The Pens"
 chapter: 15
 summary: "A troglodyte settlement keeping prisoners, and four of them who came out fighting for us."
-published: false
+published: true
 blocks:
   - type: telling
     text: |-

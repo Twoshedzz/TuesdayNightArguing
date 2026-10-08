@@ -2,7 +2,7 @@
 title: "Two Days of Digging"
 chapter: 10
 summary: "The way on was through, so we dug, and something shot Magnus in the dark while we did it."
-published: false
+published: true
 blocks:
   - type: telling
     text: |-

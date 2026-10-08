@@ -2,7 +2,7 @@
 title: "Behind the Waterfall"
 chapter: 4
 summary: "Standing stones, an ambush from above, a mule with opinions, and a mountain dwarf on his hands and knees in front of everyone."
-published: false
+published: true
 blocks:
   - type: telling
     text: |-

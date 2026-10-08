@@ -2,7 +2,7 @@
 title: "The Pool"
 chapter: 9
 summary: "We were hired to carry the stones away. Nobody mentioned what they were for."
-published: false
+published: true
 blocks:
   - type: telling
     text: |-

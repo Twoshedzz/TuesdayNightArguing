@@ -2,7 +2,7 @@
 title: "We. Thank. You."
 chapter: 17
 summary: "Daylight, a village on walkways, and a host who dismisses the thing we came for and names the thing we should be afraid of."
-published: false
+published: true
 blocks:
   - type: telling
     text: |-

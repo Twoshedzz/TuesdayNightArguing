@@ -2,7 +2,7 @@
 title: "The Drum"
 chapter: 3
 summary: "First blood on the road, a nest that erupts out of the ground, and something I dug out of a grave."
-published: false
+published: true
 blocks:
   - type: telling
     text: |-

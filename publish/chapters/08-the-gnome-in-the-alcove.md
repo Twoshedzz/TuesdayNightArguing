@@ -2,7 +2,7 @@
 title: "The Gnome in the Alcove"
 chapter: 8
 summary: "A painted rune, four stones, a witch we could only see by watching the steam, and a hostage who never left."
-published: false
+published: true
 blocks:
   - type: telling
     text: |-

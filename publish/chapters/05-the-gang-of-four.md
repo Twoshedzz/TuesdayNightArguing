@@ -2,7 +2,7 @@
 title: "The Gang of Four"
 chapter: 5
 summary: "A lizardman torn in half, smoke from the second tower, and a woman shouting a name at us as though we ought to have heard of them."
-published: false
+published: true
 blocks:
   - type: telling
     text: |-

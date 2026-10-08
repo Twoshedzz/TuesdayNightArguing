@@ -2,7 +2,7 @@
 title: "The Totem"
 chapter: 14
 summary: "Glowing fungus, carrion crawlers, and something dead propped up on sticks by somebody who is still alive."
-published: false
+published: true
 blocks:
   - type: telling
     text: |-

@@ -2,7 +2,7 @@
 title: "The Road Back"
 chapter: 18
 summary: "An ogre, bugbears, and a man who put two of us on the floor and then simply left."
-published: false
+published: true
 blocks:
   - type: telling
     text: |-

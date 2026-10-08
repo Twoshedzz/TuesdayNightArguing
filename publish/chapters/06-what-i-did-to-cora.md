@@ -2,7 +2,7 @@
 title: "What I Did to Cora"
 chapter: 6
 summary: "The worst thing in this book, done by me, defended by me, and written down by me."
-published: false
+published: true
 blocks:
   - type: telling
     text: |-

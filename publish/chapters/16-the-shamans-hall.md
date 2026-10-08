@@ -2,7 +2,7 @@
 title: "The Shaman's Hall"
 chapter: 16
 summary: "We blew the barricade in together, and the people we had rescued an hour earlier died covering us."
-published: false
+published: true
 blocks:
   - type: telling
     text: |-

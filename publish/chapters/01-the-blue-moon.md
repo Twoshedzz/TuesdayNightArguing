@@ -2,7 +2,7 @@
 title: "The Blue Moon"
 chapter: 1
 summary: "We met on a boat, drank in the same place for three weeks, and were introduced to our employer by being attacked alongside him."
-published: false
+published: true
 blocks:
   - type: telling
     text: |-
