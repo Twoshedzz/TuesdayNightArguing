@@ -9,6 +9,10 @@
 
 # Only has an effect on localhost, where `npx decap-server` proxies the real files.
 # Ignored in production, where git-gateway below is used.
+# Plainer button words — defined by registerLocale in registers.js. Decap merges
+# it over English, so only the keys named there change.
+locale: 'en-plain'
+
 local_backend: true
 
 backend:
@@ -71,11 +75,13 @@ collections:
         required: false
         hint: 'Optional. A plate at the head of the chapter.'
 
-      - label: 'Published'
+      - label: 'Live on the site'
         name: 'published'
         widget: 'boolean'
         default: false
-        hint: 'Off while you are writing. Switch on when it is ready for readers.'
+        hint: >-
+          Off while you are writing — saving is safe, nobody can see it. Switch on
+          when it is ready for readers.
 
       # Decap writes "3 blocks" from `label` and "1 block" from `label_singular`,
       # so the plural has to be the noun, not a heading.

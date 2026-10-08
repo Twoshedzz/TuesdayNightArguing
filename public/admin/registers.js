@@ -14,6 +14,37 @@
 
 /* global CMS */
 
+/* ───────────────────────────────────────────────────────────────────────────────
+ * Plainer words for the buttons.
+ *
+ * Decap calls saving "Publish", while the chapter also has a field deciding
+ * whether readers can see it. Two meanings of the same word, on one screen, for
+ * someone who has never used a CMS — and it stopped the first person who tried.
+ *
+ * registerLocale deep-merges over English, so overriding a handful of keys is
+ * safe: anything not named here keeps Decap's own wording. config.yml sets
+ * `locale: en-plain` to select it.
+ * ──────────────────────────────────────────────────────────────────────────── */
+CMS.registerLocale('en-plain', {
+  editor: {
+    editorToolbar: {
+      publish: 'Save',
+      publishing: 'Saving…',
+      published: 'Saved',
+      publishNow: 'Save now',
+      publishAndCreateNew: 'Save, and start a new chapter',
+      publishAndDuplicate: 'Save, and make a copy',
+      deleteEntry: 'Delete this chapter',
+    },
+    editorWidgets: {
+      list: {
+        add: 'Add %{item}',
+        addType: 'Add %{item}',
+      },
+    },
+  },
+});
+
 // The site's own stylesheet, copied here by scripts/sync-publish.mjs on every build.
 CMS.registerPreviewStyle('/admin/preview.css');
 CMS.registerPreviewStyle(
@@ -181,14 +212,20 @@ function renderLines(text = '') {
   return out.join('');
 }
 
-/** Paragraphs plus emphasis — enough for a preview, not a markdown engine. */
+/**
+ * Paragraphs plus emphasis — enough for a preview, not a markdown engine.
+ *
+ * A single newline is a wrap, not a break: the site runs marked with
+ * `breaks: false`, so hand-wrapped prose flows into one paragraph. The preview
+ * has to do the same or it shows breaks the reader will never see.
+ */
 const paragraphs = (text = '') =>
   String(text)
     .replace(SPLIT_MARKER_ALL, '')
     .split(/\n{2,}/)
     .map((p) => p.trim())
     .filter(Boolean)
-    .map((p) => `<p>${inline(p).replace(/\n/g, '<br>')}</p>`)
+    .map((p) => `<p>${inline(p).replace(/\s*\n\s*/g, ' ')}</p>`)
     .join('');
 
 function blockHtml(block) {
