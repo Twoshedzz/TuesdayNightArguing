@@ -230,6 +230,15 @@ const { covers, eyebrow, title, lede, ctaLabel, ctaHref } = Astro.props;
       button.addEventListener('click', () => show(button.dataset.coverChoose ?? ''));
     }
 
+    /*
+     * Anything on the page can send the reader to a book — the empty state on a
+     * book with nothing in it says "Book one is where to start", and means it.
+     * These are sentences rather than controls, so they take no pressed state.
+     */
+    for (const link of document.querySelectorAll<HTMLElement>('[data-go-book]')) {
+      link.addEventListener('click', () => show(link.dataset.goBook ?? ''));
+    }
+
     /**
      * Consent can change after the page has loaded. Withdrawing it clears the place
      * that was kept and takes the offer away, rather than leaving it to be read on

@@ -91,7 +91,11 @@ const firstChapter = chaptersByBook[0].chapters[0];
             </ul>
           ) : (
             <p class="cover__empty">
-              Not written yet — the table has not sat down. Book one is where to start.
+              Not written yet — the table has not sat down.{' '}
+              <button type="button" class="cover__empty-link" data-go-book="book-one">
+                Book one
+              </button>{' '}
+              is where to start.
             </p>
           )}
         </section>
