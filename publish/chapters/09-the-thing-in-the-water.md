@@ -3,7 +3,7 @@ title: The Thing in the Water
 chapter: 9
 summary: Down into the cavern in a bag, and the voice that wanted us to come to
   the water.
-published: true
+published: false
 blocks:
   - type: telling
     text: >-
@@ -17,8 +17,9 @@ blocks:
       badly and took the fall on his hip. Shae came out early, slipped, fell, failed to catch
 
       himself, fell again, and landed with a crunch every one of us heard.
-  - type: telling
-    text: ""
+  - type: interruption
+    channel: ""
+    lines: ""
   - type: telling
     text: >-
       Below us the water did not move the way water moves. It carried a skin of
