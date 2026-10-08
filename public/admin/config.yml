@@ -36,6 +36,10 @@ collections:
     label: 'Chapters'
     label_singular: 'Chapter'
     folder: 'publish/chapters'
+    description: >-
+      New here? The one-page guide is at /admin/guide.html — what the blocks are,
+      how to interrupt a paragraph you have already written, and why nothing goes
+      public until you switch it on.
     create: true
     delete: false
     # 09-the-thing-in-the-water — the number orders the book, the words make the URL
