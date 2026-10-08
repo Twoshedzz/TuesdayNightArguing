@@ -25,17 +25,20 @@ himself, fell again, and landed with a crunch every one of us heard.
 Below us the water did not move the way water moves. It carried a skin of filth across
 it, and under the filth something took up more room than it ought to have.
 
-<aside class="read-aloud">
-<p>Please. They're not listening. I need help. Come to the water. You'll see me.</p>
-</aside>
+:::aloud
+Please. They're not listening. I need help. Come to the water. You'll see me.
+:::
 
 Garnel heard it first, and tipped his head the way a dog does. Then Torgan. Then me.
 
-<aside class="room">
-<p class="chan">general · voice connected · 5 of 5</p>
-<p><b>DM</b> <span class="t">21:31</span><br><span class="sys">moved Torgan to Room 2</span><br><span class="sys">moved Shae to Room 3</span><br><span class="sys">moved Noct to Room 4</span></p>
-<p><b>Noct</b> <span class="t">21:32</span><br>It is the oldest trick there is and I have watched it done. It still works, because the loneliness is real. I am in a box room in Lancashire with the door shut, listening to a man describe a voice that wants me to come to the water, and there is nobody else on the call.</p>
-</aside>
+:::room{channel="general · voice connected · 5 of 5"}
+**DM** 21:31
+*moved Torgan to Room 2*
+*moved Shae to Room 3*
+*moved Noct to Room 4*
+
+**Noct** 21:32 It is the oldest trick there is and I have watched it done. It still works, because the loneliness is real. I am in a box room in Lancashire with the door shut, listening to a man describe a voice that wants me to come to the water, and there is nobody else on the call.
+:::
 
 The water broke. It came up out of it — three tentacles, each tipped with a spiked
 paddle, and a mouth a man could walk into without stooping. Torgan was wrapped and
@@ -52,12 +55,13 @@ I want that written down. *I did not run.*
 | Noct | 13 | Mockery, miss. Inspiration ×3 |
 | Shae | 9 | Dagger, 7 |
 
-<aside class="room">
-<p class="chan">general · someone has not muted</p>
-<p><b>Torgan</b> <span class="t">21:47</span><br>single. always single.</p>
-<p><b>Merlin</b> <span class="t">21:47</span><br>that's a kitchen. you want double.</p>
-<p><b>Noct</b> <span class="t">21:48</span><br>A door went somewhere in the Midlands and a woman's voice arrived in all five rooms at once, asking whether we wanted the single panel or the double. Nobody muted. Nobody apologised. Nobody stopped. Somewhere under it all a dwarf was about to be eaten and five grown men were costing a central heating job.</p>
-</aside>
+:::room{channel="general · someone has not muted"}
+**Torgan** 21:47 single. always single.
+
+**Merlin** 21:47 that's a kitchen. you want double.
+
+**Noct** 21:48 A door went somewhere in the Midlands and a woman's voice arrived in all five rooms at once, asking whether we wanted the single panel or the double. Nobody muted. Nobody apologised. Nobody stopped. Somewhere under it all a dwarf was about to be eaten and five grown men were costing a central heating job.
+:::
 
 A bard holds a room by knowing when to stop talking. I have never once known when to
 stop talking, and so I gave Torgan my voice for the third time that night, and he came
@@ -70,7 +74,6 @@ light through the thing's skull.
 
 I took a tooth. Then I was sick, which I will also not be recording.
 
-<aside class="room">
-<p class="chan">general</p>
-<p><b>Noct</b> <span class="t">22:14</span><br>He rolls a twelve and kills it, and the shout that goes up is loud enough that somebody's dog starts barking and somebody else's child appears at a door in pyjamas and has to be walked back upstairs. Then it is quiet for a second, and I am forty-one years old, and this is the happiest I have been all week.</p>
-</aside>
+:::room{channel="general"}
+**Noct** 22:14 He rolls a twelve and kills it, and the shout that goes up is loud enough that somebody's dog starts barking and somebody else's child appears at a door in pyjamas and has to be walked back upstairs. Then it is quiet for a second, and I am forty-one years old, and this is the happiest I have been all week.
+:::

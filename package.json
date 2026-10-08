@@ -12,7 +12,9 @@
     "verify": "node scripts/verify.mjs"
   },
   "dependencies": {
-    "astro": "^5.7.0"
+    "astro": "^5.7.0",
+    "remark-directive": "^4.0.0",
+    "unist-util-visit": "^5.1.0"
   },
   "engines": {
     "node": ">=22.12.0"

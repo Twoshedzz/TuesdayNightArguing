@@ -26,33 +26,49 @@ This one is for adults and can swear, but swearing is seasoning rather than char
 
 ## Marking the two registers in markdown
 
-The chapter files are ordinary markdown. Two wrappers do the work:
+Two blocks do the work. No HTML, no class names.
 
-An interruption — rendered as the chat client:
+**An interruption** — rendered as the chat client:
 
-```html
-<aside class="room">
-<p class="chan">general · voice connected · 5 of 5</p>
-<p><b>Torgan</b> <span class="t">21:47</span><br>single. always single.</p>
-<p><span class="sys">moved Noct to Room 4</span></p>
-</aside>
+```
+:::room{channel="general · voice connected · 5 of 5"}
+**DM** 21:31
+*moved Noct to Room 4*
+
+**Torgan** 21:47 single. always single.
+
+**Merlin** that's a kitchen. you want double.
+:::
 ```
 
-- `p.chan` is the channel line. It draws its own green dot; do not add one.
-- `<b>` is a speaker's name, `span.t` a timestamp, `span.sys` something the app said
-  rather than a person.
+Inside the block, one line each:
 
-Something heard rather than seen — rendered as a module's boxed read-aloud:
+| You write | You get |
+|---|---|
+| `**Torgan** 21:47 single.` | a speaker, their timestamp, and what they said |
+| `**Merlin** that's a kitchen.` | the same, with no timestamp |
+| `*moved Noct to Room 4*` | something the app said rather than a person |
+| anything else | a plain line |
 
-```html
-<aside class="read-aloud">
-<p>Please. They're not listening. Come to the water.</p>
-</aside>
+System lines written straight after a speaker belong to them — several notices
+under one name, which is how the app actually reads. The `channel` is optional and
+draws its own green dot; do not add one.
+
+**Something heard rather than seen** — rendered as a module's boxed read-aloud:
+
+```
+:::aloud
+Please. They're not listening. Come to the water.
+:::
 ```
 
-Ordinary markdown tables are set as period rulebook tables. Use them for the things the
-notebook already records: initiative orders, damage, treasure, watches. Resist inventing
-tables for their own sake — the joke is that these are the real numbers.
+Ordinary markdown tables are set as period rulebook tables. Use them for what the
+notebook already records — initiative, damage, treasure, watches — and do not invent
+tables for decoration.
+
+**One trap worth knowing.** A colon starts a block, so a bare `21:47` on its own in
+normal prose can confuse the parser. Inside a speaker line it is handled. Elsewhere,
+write the time in words or keep it inside a `:::room` block.
 
 ## Look
 
