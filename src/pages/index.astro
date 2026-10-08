@@ -14,7 +14,29 @@ const firstChapter = chapters[0];
 
   <div class="container container--cover">
     <CoverHero
-      image="/illustrations/cover/cover-noct-in-the-doorway.jpg"
+      covers={[
+        {
+          id: 'first',
+          label: 'First edition',
+          image: '/illustrations/cover/cover-the-pit.jpg',
+          aspect: '3 / 2',
+          aspectNarrow: '1 / 1',
+          maxWidth: '54rem',
+          // Wide and busy: no strapline over the figures, and a scrim that reaches
+          // only as far as the button needs.
+          showLede: false,
+          scrimTop: '40%',
+          scrimBottom: '34%',
+        },
+        {
+          id: 'second',
+          label: 'Second edition',
+          image: '/illustrations/cover/cover-noct-in-the-doorway.jpg',
+          aspect: '5 / 7',
+          aspectNarrow: '4 / 5',
+          maxWidth: '42rem',
+        },
+      ]}
       eyebrow="A Dungeons &amp; Dragons campaign, told twice"
       title={SITE_TITLE}
       lede="One campaign, as told by a bard who was there and a man who was on a call."

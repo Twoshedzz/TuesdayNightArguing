@@ -1,24 +1,50 @@
 ---
 /**
- * The cover, as a cover.
+ * The cover, as a cover — and there is more than one.
  *
- * A full-bleed plate with the title, the strapline and the way in set over it —
- * the arrangement of a paperback rather than a web page: title block high, the
- * way in low where a publisher's mark would sit.
+ * Each cover is a plate: the art as a background with the title, the strapline
+ * and the way in set over it. Title block high, the way in low where a
+ * publisher's mark would sit.
  *
  * Scaling is the whole problem. A cover is a fixed set of proportions, and type
- * sized in rem stops being a cover the moment the plate is any other size. So the
- * plate is a container and everything on it is sized in `cqi` — a percentage of
- * the plate's own width — which means it holds its composition identically on a
- * phone and on a desktop. The clamp() on the outside keeps it from becoming
- * unreadably small on a narrow screen or absurd on a wide one.
+ * sized in rem stops being a cover the moment the plate is any other size. So each
+ * plate is its own container and everything on it is sized in `cqi` — a percentage
+ * of that plate's width — which holds the composition identically on a phone and
+ * on a desktop. The clamps keep it readable at one end and sane at the other.
  *
- * The art is a background rather than an <img> because it is decoration: the
- * title is real text above it, which is what a screen reader and a search engine
- * should find. Pass `alt` only if the painting carries meaning the words do not.
+ * The art is a background rather than an <img> because it is decoration: the title
+ * is real text above it, which is what a screen reader and a search engine find.
+ *
+ * Every plate is rendered. The toggle swaps which one is shown and remembers the
+ * choice per reader, and it only appears once the script has run — without
+ * JavaScript the first cover shows and there is no dead control.
  */
-interface Props {
+interface Cover {
+  id: string;
   image: string;
+  label: string;
+  /** Plate proportions, e.g. '5 / 7'. */
+  aspect: string;
+  /** How wide the plate may grow. A landscape plate wants more room. */
+  maxWidth: string;
+  /** Narrow-screen proportions, when the printed shape is too tall or too wide. */
+  aspectNarrow?: string;
+  /**
+   * How far the scrims reach, as a percentage of plate height. A short plate puts
+   * the same type block over more of the picture, so it needs them to reach further.
+   */
+  scrimTop?: string;
+  scrimBottom?: string;
+  /**
+   * Whether this plate carries the strapline. A wide plate puts it straight over
+   * the figures, and the fuller version sits directly below the cover anyway —
+   * so the art is worth more than the repetition.
+   */
+  showLede?: boolean;
+}
+
+interface Props {
+  covers: Cover[];
   eyebrow?: string;
   title: string;
   lede?: string;
@@ -26,42 +52,124 @@ interface Props {
   ctaHref?: string;
 }
 
-const { image, eyebrow, title, lede, ctaLabel, ctaHref } = Astro.props;
+const { covers, eyebrow, title, lede, ctaLabel, ctaHref } = Astro.props;
 ---
 
-<section class="plate" style={`--plate-art: url('${image}')`}>
-  <div class="plate__art" aria-hidden="true"></div>
+<div class="covers" data-covers>
+  {
+    covers.map((cover, i) => (
+      <section
+        class="plate"
+        data-cover={cover.id}
+        hidden={i !== 0}
+        style={`--plate-art: url('${cover.image}'); --plate-aspect: ${cover.aspect}; --plate-max: ${cover.maxWidth}; --plate-aspect-narrow: ${cover.aspectNarrow ?? cover.aspect}; --scrim-top: ${cover.scrimTop ?? '44%'}; --scrim-bottom: ${cover.scrimBottom ?? '48%'}`}
+      >
+        <div class="plate__art" aria-hidden="true" />
 
-  <div class="plate__type">
-    <header class="plate__head">
-      {eyebrow && <p class="plate__eyebrow">{eyebrow}</p>}
-      <h1 class="plate__title">{title}</h1>
-    </header>
+        <div class="plate__type">
+          <header class="plate__head">
+            {eyebrow && <p class="plate__eyebrow">{eyebrow}</p>}
+            <h1 class="plate__title">{title}</h1>
+          </header>
 
-    <footer class="plate__foot">
-      {lede && <p class="plate__lede">{lede}</p>}
-      {
-        ctaHref && ctaLabel && (
-          <a class="plate__cta" href={ctaHref}>
-            {ctaLabel}
-          </a>
-        )
+          <footer class="plate__foot">
+            {lede && cover.showLede !== false && <p class="plate__lede">{lede}</p>}
+            {ctaHref && ctaLabel && (
+              <a class="plate__cta" href={ctaHref}>
+                {ctaLabel}
+              </a>
+            )}
+          </footer>
+        </div>
+      </section>
+    ))
+  }
+
+  {
+    covers.length > 1 && (
+      <div class="covers__switch" data-cover-switch hidden>
+        <span class="covers__label">Cover</span>
+        {covers.map((cover, i) => (
+          <button
+            type="button"
+            class="covers__button"
+            data-cover-choose={cover.id}
+            aria-pressed={i === 0 ? 'true' : 'false'}
+          >
+            {cover.label}
+          </button>
+        ))}
+      </div>
+    )
+  }
+</div>
+
+<script>
+  /**
+   * Swap which plate is shown, and remember it. Storage is per browser and can
+   * throw outright in a private window, so every touch of it is wrapped and the
+   * page renders correctly when it fails.
+   */
+  const root = document.querySelector('[data-covers]');
+  if (root) {
+    const plates = Array.from(root.querySelectorAll<HTMLElement>('[data-cover]'));
+    const buttons = Array.from(root.querySelectorAll<HTMLButtonElement>('[data-cover-choose]'));
+    const bar = root.querySelector<HTMLElement>('[data-cover-switch]');
+    const KEY = 'tna-cover';
+
+    const show = (id: string, remember: boolean) => {
+      const match = plates.some((p) => p.dataset.cover === id);
+      if (!match) return;
+
+      for (const plate of plates) plate.hidden = plate.dataset.cover !== id;
+      for (const button of buttons) {
+        button.setAttribute('aria-pressed', String(button.dataset.coverChoose === id));
       }
-    </footer>
-  </div>
-</section>
+      if (remember) {
+        try {
+          window.localStorage.setItem(KEY, id);
+        } catch {
+          /* the choice holds for this page only */
+        }
+      }
+    };
+
+    let stored: string | null = null;
+    try {
+      stored = window.localStorage.getItem(KEY);
+    } catch {
+      /* undecided */
+    }
+    if (stored) show(stored, false);
+
+    for (const button of buttons) {
+      button.addEventListener('click', () => show(button.dataset.coverChoose ?? '', true));
+    }
+
+    // Only now is the control worth showing.
+    if (bar) bar.hidden = false;
+  }
+</script>
 
 <style>
+  .covers {
+    margin-bottom: 2.5rem;
+  }
+
   .plate {
     container-type: inline-size;
     position: relative;
     width: 100%;
-    max-width: 42rem;
-    margin: 0 auto 2.5rem;
-    aspect-ratio: 5 / 7;
+    max-width: var(--plate-max, 42rem);
+    margin: 0 auto;
+    aspect-ratio: var(--plate-aspect, 5 / 7);
     overflow: hidden;
     background: #241a12;
     border: 1px solid var(--rule, #b5a584);
+  }
+
+  .plate[hidden] {
+    display: none !important;
   }
 
   .plate__art {
@@ -81,8 +189,18 @@ const { image, eyebrow, title, lede, ctaLabel, ctaHref } = Astro.props;
     position: absolute;
     inset: 0;
     background:
-      linear-gradient(to bottom, rgb(20 12 6 / 0.72) 0%, rgb(20 12 6 / 0.25) 26%, rgb(20 12 6 / 0) 42%),
-      linear-gradient(to top, rgb(20 12 6 / 0.82) 0%, rgb(20 12 6 / 0.4) 22%, rgb(20 12 6 / 0) 46%);
+      linear-gradient(
+        to bottom,
+        rgb(12 6 4 / 0.78) 0%,
+        rgb(12 6 4 / 0.3) calc(var(--scrim-top, 44%) * 0.6),
+        rgb(12 6 4 / 0) var(--scrim-top, 44%)
+      ),
+      linear-gradient(
+        to top,
+        rgb(12 6 4 / 0.88) 0%,
+        rgb(12 6 4 / 0.5) calc(var(--scrim-bottom, 48%) * 0.45),
+        rgb(12 6 4 / 0) var(--scrim-bottom, 48%)
+      );
   }
 
   .plate__type {
@@ -106,7 +224,7 @@ const { image, eyebrow, title, lede, ctaLabel, ctaHref } = Astro.props;
     text-transform: uppercase;
     text-wrap: balance;
     color: #e8b88a;
-    text-shadow: 0 1px 3px rgb(0 0 0 / 0.8);
+    text-shadow: 0 1px 3px rgb(0 0 0 / 0.85);
   }
 
   .plate__title {
@@ -118,8 +236,8 @@ const { image, eyebrow, title, lede, ctaLabel, ctaHref } = Astro.props;
     letter-spacing: -0.01em;
     text-wrap: balance;
     text-shadow:
-      0 2px 4px rgb(0 0 0 / 0.85),
-      0 0 26px rgb(0 0 0 / 0.5);
+      0 2px 4px rgb(0 0 0 / 0.9),
+      0 0 26px rgb(0 0 0 / 0.55);
   }
 
   .plate__lede {
@@ -128,15 +246,14 @@ const { image, eyebrow, title, lede, ctaLabel, ctaHref } = Astro.props;
     font-family: var(--serif, Georgia, serif);
     font-size: clamp(0.78rem, 3.1cqi, 1.1rem);
     line-height: 1.45;
-    text-shadow: 0 1px 4px rgb(0 0 0 / 0.9);
+    text-shadow: 0 1px 4px rgb(0 0 0 / 0.95);
   }
 
   .plate__cta {
     display: inline-block;
     padding: 1.6cqi 5cqi;
     border: 1px solid #e8b88a;
-    background: rgb(20 12 6 / 0.55);
-    backdrop-filter: blur(2px);
+    background: rgb(12 6 4 / 0.6);
     color: #f5ead6;
     font-family: var(--ui, system-ui, sans-serif);
     font-size: clamp(0.72rem, 2.8cqi, 1rem);
@@ -153,20 +270,57 @@ const { image, eyebrow, title, lede, ctaLabel, ctaHref } = Astro.props;
     color: #241a12;
   }
 
+  /* ── the switch ─────────────────────────────────────────────────────────── */
+
+  .covers__switch {
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 0.4rem 0.75rem;
+    margin-top: 0.85rem;
+    font-family: var(--ui, system-ui, sans-serif);
+    font-size: 0.72rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .covers__switch[hidden] {
+    display: none !important;
+  }
+
+  .covers__label {
+    color: var(--ink-soft, #78644a);
+  }
+
+  .covers__button {
+    appearance: none;
+    border: 0;
+    border-bottom: 1px solid transparent;
+    background: none;
+    padding: 0 0 0.15rem;
+    font: inherit;
+    color: var(--ink-soft, #78644a);
+    cursor: pointer;
+  }
+
+  .covers__button:hover {
+    color: var(--orange, #b4551f);
+  }
+
+  .covers__button[aria-pressed='true'] {
+    color: var(--orange, #b4551f);
+    border-bottom-color: var(--orange, #b4551f);
+  }
+
   /*
-   * Below about 30rem a 5:7 plate is taller than the screen. Letting it go a
-   * little wider keeps the whole cover in view without shrinking the type.
+   * A printed shape is not always a screen shape. Below about 30rem a tall plate
+   * is taller than the phone and a wide one is a letterbox, so each carries its
+   * own narrow proportions.
    */
   @media (max-width: 30rem) {
     .plate {
-      aspect-ratio: 4 / 5;
-    }
-  }
-
-  @media (prefers-reduced-transparency: reduce) {
-    .plate__cta {
-      backdrop-filter: none;
-      background: rgb(20 12 6 / 0.85);
+      aspect-ratio: var(--plate-aspect-narrow, 4 / 5);
     }
   }
 </style>
