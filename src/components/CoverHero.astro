@@ -70,16 +70,26 @@ const { covers, eyebrow, title, lede, ctaLabel, ctaHref } = Astro.props;
       <section
         class:list={['plate', cover.bleed && 'plate--bleed']}
         data-cover={cover.id}
+        data-bleed={cover.bleed ? 'true' : undefined}
         hidden={i !== 0}
         style={`--plate-art: url('${cover.image}'); --plate-aspect: ${cover.aspect}; --plate-max: ${cover.maxWidth}; --plate-aspect-narrow: ${cover.aspectNarrow ?? cover.aspect}; --scrim-top: ${cover.scrimTop ?? '44%'}; --scrim-bottom: ${cover.scrimBottom ?? '48%'}; --plate-focus: ${cover.focus ?? 'center'}`}
       >
+        <div class="plate__backdrop" aria-hidden="true" />
         <div class="plate__art" aria-hidden="true" />
 
         <div class="plate__type">
-          <header class="plate__head">
-            {eyebrow && <p class="plate__eyebrow">{eyebrow}</p>}
-            <h1 class="plate__title">{title}</h1>
-          </header>
+          {/*
+            The bleed cover borrows the masthead as its title — it sits over the
+            picture, so repeating it here would be saying it twice. Every other
+            plate carries its own, as a <p>: the page's single <h1> is the
+            masthead's, either way.
+          */}
+          {!cover.bleed && (
+            <header class="plate__head">
+              {eyebrow && <p class="plate__eyebrow">{eyebrow}</p>}
+              <p class="plate__title">{title}</p>
+            </header>
+          )}
 
           <footer class="plate__foot">
             {lede && cover.showLede !== false && <p class="plate__lede">{lede}</p>}
@@ -131,6 +141,13 @@ const { covers, eyebrow, title, lede, ctaLabel, ctaHref } = Astro.props;
       if (!match) return;
 
       for (const plate of plates) plate.hidden = plate.dataset.cover !== id;
+
+      // Only the bleed cover runs to the top of the page with the masthead over it.
+      const chosen = plates.find((p) => p.dataset.cover === id);
+      document
+        .querySelector('.site-shell')
+        ?.classList.toggle('site-shell--hero', chosen?.dataset.bleed === 'true');
+
       for (const button of buttons) {
         button.setAttribute('aria-pressed', String(button.dataset.coverChoose === id));
       }
@@ -163,6 +180,7 @@ const { covers, eyebrow, title, lede, ctaLabel, ctaHref } = Astro.props;
 <style>
   .covers {
     margin-bottom: 2.5rem;
+    padding-inline: 20px;
   }
 
   .plate {
@@ -187,6 +205,11 @@ const { covers, eyebrow, title, lede, ctaLabel, ctaHref } = Astro.props;
     background-image: var(--plate-art);
     background-size: cover;
     background-position: var(--plate-focus, center);
+  }
+
+  /* Only a bleed plate needs one; see below. */
+  .plate__backdrop {
+    display: none;
   }
 
   /*
@@ -286,20 +309,53 @@ const { covers, eyebrow, title, lede, ctaLabel, ctaHref } = Astro.props;
    * takes a capped height instead and lets the picture crop — which is why the
    * focus point is settable per cover.
    */
+  /*
+   * Full width without 100vw. A viewport unit includes the scrollbar, so a 100vw
+   * band is always a few pixels wider than the space it has and the page scrolls
+   * sideways. The cover sits outside the page column instead and simply cancels
+   * the wrapper's gutter, which no scrollbar can affect.
+   */
   .plate--bleed {
-    width: 100vw;
+    width: auto;
     max-width: none;
-    margin-left: calc(50% - 50vw);
+    margin-inline: -20px;
     aspect-ratio: auto;
-    height: clamp(21rem, 68vh, 40rem);
+    height: clamp(24rem, 82vh, 48rem);
     border-left: 0;
     border-right: 0;
   }
 
   /*
-   * One wash from the left rather than two from the ends: the picture is dark rock
-   * at the sides and lit in the middle, so the type sits on the rock and the figure
-   * keeps its light.
+   * A wide band and a 3:2 painting cannot both have their way: edge to edge on a
+   * 2000px screen, `cover` scales the picture to 1300px tall and throws away a
+   * third of it — which is exactly where Noct and the demon's head live.
+   *
+   * So the painting is fitted whole inside the band instead, and the space either
+   * side is filled with a blurred, darkened copy of itself. No crop, no letterbox
+   * bars, and no seam where a flat colour would meet the rock.
+   */
+  .plate--bleed .plate__art {
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+
+  .plate--bleed .plate__backdrop {
+    display: block;
+    position: absolute;
+    inset: 0;
+    background-image: var(--plate-art);
+    background-size: cover;
+    background-position: center;
+    filter: blur(32px) brightness(0.42) saturate(0.75);
+    /* Scaled up so the blur's soft edge never reaches the band's own edge. */
+    transform: scale(1.12);
+  }
+
+  /*
+   * One wash from the left rather than two from the ends: the picture is dark at
+   * the sides and lit in the middle, so the type sits on the dark and the figures
+   * keep their light.
    */
   .plate--bleed .plate__art::after {
     background: linear-gradient(
@@ -317,7 +373,7 @@ const { covers, eyebrow, title, lede, ctaLabel, ctaHref } = Astro.props;
    * and the band never needs extra canvas above the art.
    */
   .plate--bleed .plate__type {
-    justify-content: flex-start;
+    justify-content: flex-end;
     align-items: flex-start;
     text-align: left;
     max-width: 78rem;
@@ -362,37 +418,65 @@ const { covers, eyebrow, title, lede, ctaLabel, ctaHref } = Astro.props;
     font-size: clamp(0.72rem, 1.1vw, 0.9rem);
   }
 
-  /* On a phone the band is nearly square, so the type goes back to the middle. */
+  /*
+   * On a phone the band stops being a band and becomes a stack.
+   *
+   * Overlaying type on a picture needs the picture to be big. A 3:2 painting at
+   * 375px wide is 250px tall, so a tall band leaves it floating in the middle of
+   * a lot of black with the type nowhere near it. Instead the picture takes its
+   * own height, and the words sit under it on the dark ground.
+   */
   @media (max-width: 34rem) {
+    .plate--bleed {
+      height: auto;
+      aspect-ratio: auto;
+      background: #0c0604;
+    }
+
+    .plate--bleed .plate__backdrop {
+      display: none;
+    }
+
+    .plate--bleed .plate__art {
+      position: relative;
+      inset: auto;
+      aspect-ratio: 3 / 2;
+      background-size: cover;
+    }
+
+    /* Nothing is written on the picture now, so it keeps all of its own light. */
+    .plate--bleed .plate__art::after {
+      display: none;
+    }
+
     .plate--bleed .plate__type {
+      position: static;
+      height: auto;
       align-items: center;
       text-align: center;
+      padding: 1.5rem 1.25rem 2rem;
     }
 
-    .plate--bleed .plate__art::after {
-      background: linear-gradient(
-        to top,
-        rgb(10 5 3 / 0.86) 0%,
-        rgb(10 5 3 / 0.55) 40%,
-        rgb(10 5 3 / 0.35) 100%
-      );
+    .plate--bleed .plate__head,
+    .plate--bleed .plate__foot {
+      max-width: none;
+      margin-top: 0;
     }
 
-    /* Tracked out, this line reaches both edges of a phone. */
-    .plate--bleed .plate__eyebrow {
-      letter-spacing: 0.1em;
-      font-size: 0.6rem;
+    .plate--bleed .plate__lede {
+      margin-bottom: 1.25rem;
     }
   }
 
   /* ── the switch ─────────────────────────────────────────────────────────── */
 
+  /* Built for a shelf of them, not a pair: six labels wrap rather than squeeze. */
   .covers__switch {
     display: flex;
     align-items: baseline;
     justify-content: center;
     flex-wrap: wrap;
-    gap: 0.4rem 0.75rem;
+    gap: 0.45rem 0.9rem;
     margin-top: 0.85rem;
     font-family: var(--ui, system-ui, sans-serif);
     font-size: 0.72rem;
@@ -406,6 +490,8 @@ const { covers, eyebrow, title, lede, ctaLabel, ctaHref } = Astro.props;
 
   .covers__label {
     color: var(--ink-soft, #78644a);
+    /* Stays with the first button rather than stranded on a line of its own. */
+    margin-right: -0.25rem;
   }
 
   .covers__button {
@@ -434,7 +520,12 @@ const { covers, eyebrow, title, lede, ctaLabel, ctaHref } = Astro.props;
    * own narrow proportions.
    */
   @media (max-width: 30rem) {
-    .plate {
+    /*
+     * Not the bleed plate: it stacks on a phone and takes its height from its
+     * contents. This rule sits later in the file and would otherwise win on
+     * source order, squash the band back to a square and clip the button off.
+     */
+    .plate:not(.plate--bleed) {
       aspect-ratio: var(--plate-aspect-narrow, 4 / 5);
     }
   }

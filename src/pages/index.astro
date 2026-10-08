@@ -9,40 +9,40 @@ const chapters = await getPublishedChapters();
 const firstChapter = chapters[0];
 ---
 
-<BaseLayout title={SITE_TITLE}>
+<BaseLayout title={SITE_TITLE} coverHero>
   <SiteHeader slot="header" />
 
-  <div class="container container--cover">
     <CoverHero
-      covers={[
-        {
-          id: 'first',
-          label: 'First edition',
-          image: '/illustrations/cover/cover-the-pit.jpg',
-          bleed: true,
-          aspect: '3 / 2',
-          aspectNarrow: '1 / 1',
-          maxWidth: 'none',
-          // Keeps the figures in frame when the band crops top and bottom.
-          focus: 'center 46%',
-          showLede: true,
-        },
-        {
-          id: 'second',
-          label: 'Second edition',
-          image: '/illustrations/cover/cover-noct-in-the-doorway.jpg',
-          aspect: '5 / 7',
-          aspectNarrow: '4 / 5',
-          maxWidth: '42rem',
-        },
-      ]}
-      eyebrow="A Dungeons &amp; Dragons campaign, told twice"
-      title={SITE_TITLE}
-      lede="One campaign, as told by a bard who was there and a man who was on a call."
-      ctaLabel={firstChapter ? 'Begin reading' : undefined}
-      ctaHref={firstChapter ? `/chapters/${firstChapter.slug}/` : undefined}
-    />
+    covers={[
+      {
+        id: 'ad-d-1e',
+        label: '1e',
+        image: '/illustrations/cover/cover-the-pit.jpg',
+        bleed: true,
+        aspect: '3 / 2',
+        aspectNarrow: '1 / 1',
+        maxWidth: 'none',
+        // Keeps the figures in frame when the band crops top and bottom.
+        focus: 'center 46%',
+        showLede: true,
+      },
+      {
+        id: 'ad-d-1e-rev',
+        label: '1e revised',
+        image: '/illustrations/cover/cover-noct-in-the-doorway.jpg',
+        aspect: '5 / 7',
+        aspectNarrow: '4 / 5',
+        maxWidth: '42rem',
+      },
+    ]}
+    eyebrow="A Dungeons &amp; Dragons campaign, told twice"
+    title={SITE_TITLE}
+    lede="One campaign, as told by a bard who was there and a man who was on a call."
+    ctaLabel={firstChapter ? 'Begin reading' : undefined}
+    ctaHref={firstChapter ? `/chapters/${firstChapter.slug}/` : undefined}
+  />
 
+  <div class="container container--cover">
     <p class="cover__lede">
       Noct Strigbart, dwarf bard, recounts the finest hour of his life. The man playing
       him is in a box room in Lancashire with the door shut, and somebody's wife has just
