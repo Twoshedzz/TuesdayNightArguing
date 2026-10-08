@@ -42,7 +42,10 @@ const chapters = defineCollection({
     summary: z.string().optional(),
     coverIllustration: z.string().optional(),
     published: z.boolean().default(true),
-    body: z.array(z.discriminatedUnion('type', [telling, interruption, aloud, table])).default([]),
+    // NOT `body`. Decap reserves that key: it pulls data.body out as the file's
+    // markdown body and hands it to the frontmatter serialiser, which throws on a
+    // list. Renaming it is what made saving from /admin work at all.
+    blocks: z.array(z.discriminatedUnion('type', [telling, interruption, aloud, table])).default([]),
   }),
 });
 

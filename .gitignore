@@ -27,3 +27,6 @@ src/lib/build-info.ts
 
 # Local-only drafting intake
 publish/inbox/
+
+# Local dev-server config for the Claude browser pane
+.claude/

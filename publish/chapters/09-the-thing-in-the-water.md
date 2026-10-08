@@ -3,7 +3,7 @@ title: "The Thing in the Water"
 chapter: 9
 summary: "Down into the cavern in a bag, and the voice that wanted us to come to the water."
 published: true
-body:
+blocks:
   - type: telling
     text: |-
       We came down into the cavern two at a time, inside a bag. I want it noted that this was

@@ -26,6 +26,14 @@ marked.setOptions({ gfm: true, breaks: false });
 const escape = (s = '') =>
   String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
+/**
+ * The editor's "Split here" marker is resolved on save, in public/admin/registers.js.
+ * One should never reach a built page — but if one ever does, drop it silently rather
+ * than printing `{{< split interruption >}}` in the middle of a chapter.
+ */
+const dropSplitMarkers = (s = '') =>
+  String(s).replace(/^[ \t]*\{\{<\s*split\s+[a-z]+\s*>\}\}[ \t]*$/gm, '');
+
 /** Emphasis only, applied after escaping so stray HTML stays inert. */
 const inline = (text = '') =>
   escape(text)
@@ -80,7 +88,7 @@ function renderLines(text = '') {
 {
   blocks.map((block) => {
     if (block.type === 'telling') {
-      return <Fragment set:html={marked.parse(block.text ?? '')} />;
+      return <Fragment set:html={marked.parse(dropSplitMarkers(block.text ?? ''))} />;
     }
 
     if (block.type === 'interruption') {
@@ -94,7 +102,7 @@ function renderLines(text = '') {
 
     if (block.type === 'aloud') {
       return (
-        <aside class="read-aloud" set:html={marked.parse(block.text ?? '')} />
+        <aside class="read-aloud" set:html={marked.parse(dropSplitMarkers(block.text ?? ''))} />
       );
     }
 

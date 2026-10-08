@@ -1,5 +1,6 @@
 /**
- * The editor's preview, and the one rule it shares with the site.
+ * The editor's preview, the split-a-block button, and the rules they share with
+ * the site.
  *
  * A chapter is a list of blocks — Noct's telling, an interruption from the room,
  * a read-aloud, a table — which the writer adds, removes and reorders. The site
@@ -8,7 +9,7 @@
  *
  * The line grammar inside an interruption is duplicated from that component on
  * purpose: the preview runs in the browser with no build step. If you change one,
- * change the other.
+ * change the other. The same goes for SPLIT_MARKER, which both sides strip.
  */
 
 /* global CMS */
@@ -20,6 +21,122 @@ CMS.registerPreviewStyle(
    .chapter-body { max-width: 34rem; margin: 0 auto; }`,
   { raw: true },
 );
+
+/* ───────────────────────────────────────────────────────────────────────────────
+ * Split here — breaking one block into two, with a new block in the gap.
+ *
+ * Decap's list widget can only add a block at the end of the chapter; it has no
+ * insert-at-position. So interrupting a paragraph you have already written would
+ * otherwise mean cutting the second half out by hand, adding a block at the
+ * bottom and dragging it up.
+ *
+ * Instead the toolbar button drops a marker where the cursor is, and the preSave
+ * listener below does the surgery on the way to the commit: the block is split at
+ * the marker and an empty block of the chosen kind is inserted between the halves.
+ * The marker never reaches the repository, and never reaches a reader.
+ *
+ * It costs one save. He clicks Split here, saves, and the chapter comes back as
+ * three blocks with the new one waiting in the right place.
+ * ──────────────────────────────────────────────────────────────────────────── */
+
+/** On its own line. Matched once for the split, globally for belt-and-braces stripping. */
+const SPLIT_MARKER = /^[ \t]*\{\{<\s*split\s+([a-z]+)\s*>\}\}[ \t]*$/m;
+const SPLIT_MARKER_ALL = /^[ \t]*\{\{<\s*split\s+[a-z]+\s*>\}\}[ \t]*$/gm;
+
+const SPLIT_CHOICES = [
+  { label: 'An interruption — the room', value: 'interruption' },
+  { label: 'A read-aloud — heard, not seen', value: 'aloud' },
+  { label: 'A table', value: 'table' },
+  { label: 'More of your telling', value: 'telling' },
+  { label: 'Nothing — just break the prose here', value: 'none' },
+];
+
+const SPLIT_LABELS = SPLIT_CHOICES.reduce((acc, c) => Object.assign(acc, { [c.value]: c.label }), {});
+
+CMS.registerEditorComponent({
+  id: 'split',
+  label: 'Split here — start a new block',
+  fields: [
+    {
+      name: 'insert',
+      label: 'What goes in the gap?',
+      widget: 'select',
+      default: 'interruption',
+      options: SPLIT_CHOICES,
+      hint: 'Save the chapter and the new block will be sitting here, empty and waiting.',
+    },
+  ],
+  pattern: SPLIT_MARKER,
+  fromBlock: (match) => ({ insert: match[1] }),
+  toBlock: (data) => `{{< split ${data.insert || 'interruption'} >}}`,
+  toPreview: (data) =>
+    '<p style="margin:1.4rem 0;font-family:IBM Plex Sans,system-ui,sans-serif;' +
+    'font-size:0.68rem;letter-spacing:0.14em;text-transform:uppercase;color:#b4551f;' +
+    'border-top:1px solid #b4551f;border-bottom:1px solid #b4551f;padding:0.4rem 0;' +
+    'text-align:center">Split here → ' +
+    (SPLIT_LABELS[data.insert] || data.insert || 'a new block') +
+    '</p>',
+});
+
+/** An empty block of `type`, built from an existing one so no Immutable import is needed. */
+function emptyBlockLike(template, type) {
+  const base = template.clear().set('type', type);
+  if (type === 'interruption') return base.set('channel', '').set('lines', '');
+  if (type === 'table') return base.set('caption', '').set('markdown', '');
+  return base.set('text', ''); // telling, aloud
+}
+
+/**
+ * Walk the blocks, splitting each one that carries a marker. Returns the same
+ * list object when there is nothing to do, so an ordinary save is untouched.
+ *
+ * An empty half is dropped: splitting at the very start or the very end inserts
+ * the new block without leaving a blank paragraph behind.
+ */
+function applySplits(body) {
+  if (!body || typeof body.size !== 'number') return body;
+
+  let out = body;
+  let i = 0;
+
+  for (let guard = 0; i < out.size && guard < 500; guard += 1) {
+    const block = out.get(i);
+    const text = block && typeof block.get === 'function' ? block.get('text') : null;
+
+    if (typeof text !== 'string') { i += 1; continue; }
+
+    const found = text.match(SPLIT_MARKER);
+    if (!found) { i += 1; continue; }
+
+    const before = text.slice(0, found.index).replace(/\s+$/, '');
+    const after = text.slice(found.index + found[0].length).replace(/^\s+/, '');
+    const insert = found[1] === 'none' ? null : found[1];
+
+    const pieces = [];
+    if (before) pieces.push(block.set('text', before));
+    if (insert) pieces.push(emptyBlockLike(block, insert));
+    if (after || !pieces.length) pieces.push(block.set('text', after));
+
+    out = out.splice(i, 1, ...pieces);
+
+    // Land on the last piece and look at it again — the tail can hold another marker.
+    i += Math.max(pieces.length - 1, 0);
+  }
+
+  return out;
+}
+
+CMS.registerEventListener({
+  name: 'preSave',
+  handler: ({ entry }) => {
+    const data = entry.get('data');
+    if (!data || typeof data.get !== 'function') return data;
+
+    const blocks = data.get('blocks');
+    const split = applySplits(blocks);
+    return split === blocks ? data : data.set('blocks', split);
+  },
+});
 
 const escapeHtml = (s = '') =>
   String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -67,6 +184,7 @@ function renderLines(text = '') {
 /** Paragraphs plus emphasis — enough for a preview, not a markdown engine. */
 const paragraphs = (text = '') =>
   String(text)
+    .replace(SPLIT_MARKER_ALL, '')
     .split(/\n{2,}/)
     .map((p) => p.trim())
     .filter(Boolean)
@@ -118,7 +236,7 @@ if (h)
   CMS.registerPreviewTemplate('chapters', ({ entry }) => {
     const data = entry.get('data');
     const number = data.get('chapter');
-    const blocks = data.get('body');
+    const blocks = data.get('blocks');
     const list = blocks && blocks.toArray ? blocks.toArray() : blocks || [];
 
     return h(

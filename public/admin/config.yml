@@ -73,14 +73,18 @@ collections:
         default: false
         hint: 'Off while you are writing. Switch on when it is ready for readers.'
 
-      - label: 'The chapter'
-        name: 'body'
+      # Decap writes "3 blocks" from `label` and "1 block" from `label_singular`,
+      # so the plural has to be the noun, not a heading.
+      - label: 'Blocks'
+        name: 'blocks'
         label_singular: 'Block'
         widget: 'list'
         types_only: false
         hint: >-
-          The chapter, block by block. Add a block wherever you want one, drag to
-          move it, and delete what you do not need.
+          The chapter, block by block. New blocks are added at the bottom — drag them
+          to move them, and delete what you do not need. To put one in the *middle* of
+          something you have already written, use **Split here** inside the prose
+          instead of cutting and pasting.
         types:
           - label: "Noct's telling"
             name: 'telling'
@@ -91,8 +95,13 @@ collections:
                 name: 'text'
                 widget: 'markdown'
                 buttons: ['bold', 'italic', 'heading-two', 'quote', 'bulleted-list', 'numbered-list']
-                editor_components: ['image']
-                hint: 'Noct, telling it afterwards. Write normally.'
+                editor_components: ['image', 'split']
+                hint: >-
+                  Noct, telling it afterwards. Write normally. To interrupt yourself
+                  part-way through, put the cursor where the break should fall and use
+                  **Split here** — this paragraph becomes two, with a new empty block
+                  between them, once you save.
+                  
 
           - label: 'Interruption — the room'
             name: 'interruption'
