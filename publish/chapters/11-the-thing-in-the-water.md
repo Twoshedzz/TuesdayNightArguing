@@ -1,6 +1,6 @@
 ---
 title: "The Thing in the Water"
-chapter: 9
+chapter: 11
 summary: "Down into the cavern in a bag, and the voice that wanted us to come to the water."
 published: true
 blocks:
