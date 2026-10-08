@@ -125,6 +125,15 @@ const gaId = import.meta.env.PUBLIC_GA_ID || GA_MEASUREMENT_ID;
           color: var(--ink, #2a1d10);
         }
 
+        /*
+         * The browser's own [hidden] rule is display:none at the same specificity
+         * as .consent, so the display:flex above wins and the attribute does
+         * nothing. This is the rule that actually hides the bar.
+         */
+        .consent[hidden] {
+          display: none !important;
+        }
+
         .consent__text {
           flex: 1 1 16rem;
           min-width: 0;
