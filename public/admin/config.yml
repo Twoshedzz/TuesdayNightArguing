@@ -90,6 +90,8 @@ collections:
         label_singular: 'Block'
         widget: 'list'
         types_only: false
+        # A block may be empty — Split here inserts one on purpose, and Decap will
+        # not save a required field left blank.
         hint: >-
           The chapter, block by block. New blocks are added at the bottom — drag them
           to move them, and delete what you do not need. To put one in the *middle* of
@@ -104,6 +106,7 @@ collections:
               - label: 'Prose'
                 name: 'text'
                 widget: 'markdown'
+                required: false
                 buttons: ['bold', 'italic', 'heading-two', 'quote', 'bulleted-list', 'numbered-list']
                 editor_components: ['image', 'split']
                 hint: >-
@@ -128,6 +131,7 @@ collections:
               - label: 'What was said'
                 name: 'lines'
                 widget: 'text'
+                required: false
                 hint: >-
                   One per line. **Torgan** 21:47 single. always single. — or
                   *moved Noct to Room 4* for something the app said rather than a person.
@@ -140,6 +144,7 @@ collections:
               - label: 'The text'
                 name: 'text'
                 widget: 'text'
+                required: false
                 hint: 'A voice, a vision, something read off a wall. Boxed on the page.'
 
           - label: 'Table'
@@ -155,6 +160,7 @@ collections:
               - label: 'The table'
                 name: 'markdown'
                 widget: 'text'
+                required: false
                 hint: >-
                   A markdown table. | Combatant | Init. | on the first row, then
                   | --- | --- | underneath.

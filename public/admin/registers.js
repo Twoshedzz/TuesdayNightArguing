@@ -84,6 +84,133 @@ const SPLIT_CHOICES = [
 
 const SPLIT_LABELS = SPLIT_CHOICES.reduce((acc, c) => Object.assign(acc, { [c.value]: c.label }), {});
 
+/**
+ * Decap's save control is a react-aria menu button in the toolbar: a
+ * span[role=button] reading Save/Saved, which opens a menu holding "Save now".
+ * Clicking it from script is how the card's own button saves, so the writer
+ * never has to go looking for the toolbar.
+ *
+ * Everything here is defensive. If Decap's toolbar ever changes shape the
+ * button simply reports that it could not save, and the toolbar still works.
+ */
+function triggerSave() {
+  const toolbarButton = Array.from(document.querySelectorAll('span[role="button"]')).find(
+    (el) => /^Save/i.test(el.textContent.trim()),
+  );
+  if (!toolbarButton) return Promise.resolve(false);
+
+  toolbarButton.click();
+
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      const item = Array.from(document.querySelectorAll('[role="menuitem"], [role="menu"] *')).find(
+        (el) => el.children.length === 0 && /^Save now$/i.test(el.textContent.trim()),
+      );
+      if (item) {
+        item.click();
+        resolve(true);
+      } else {
+        // Nothing to save, or the menu did not open — close it again and say so.
+        toolbarButton.click();
+        resolve(false);
+      }
+    }, 250);
+  });
+}
+
+/**
+ * The button inside the Split here card. Decap has no way for a field to change
+ * the blocks around it, so the split itself still happens in preSave — this
+ * saves for you, and the postSave listener below brings the page back with the
+ * new block in place.
+ */
+const h = window.h;
+const createClass = window.createClass;
+
+if (h && createClass) {
+  const SplitActionControl = createClass({
+    getInitialState() {
+      return { state: 'idle' };
+    },
+
+    handleClick(event) {
+      event.preventDefault();
+      if (this.state.state === 'working') return;
+      this.setState({ state: 'working' });
+
+      triggerSave().then((ok) => {
+        if (!ok) {
+          this.setState({ state: 'failed' });
+          return;
+        }
+        // A successful save reloads the page from postSave. If we are still here a
+        // few seconds later the save was refused — Decap says why in its own banner,
+        // so just give the button back rather than sitting on "Splitting…".
+        this.timer = setTimeout(() => this.setState({ state: 'idle' }), 4000);
+      });
+    },
+
+    componentWillUnmount() {
+      if (this.timer) clearTimeout(this.timer);
+    },
+
+    /**
+     * Decap prints "(optional)" above every field that is not required, which on a
+     * button reads as though pressing it were a matter of taste. Hide that one bar.
+     */
+    componentDidMount() {
+      const bar = this.wrapper && this.wrapper.previousElementSibling;
+      if (bar && /ControlTopbar/.test(String(bar.className || ''))) bar.style.display = 'none';
+    },
+
+    render() {
+      const working = this.state.state === 'working';
+      return h(
+        'div',
+        {
+          className: this.props.classNameWrapper,
+          ref: (el) => {
+            this.wrapper = el;
+          },
+          style: { padding: '0.5rem 0 0' },
+        },
+        h(
+          'button',
+          {
+            type: 'button',
+            onClick: this.handleClick,
+            disabled: working,
+            style: {
+              appearance: 'none',
+              border: 0,
+              borderRadius: '4px',
+              padding: '0.6rem 1rem',
+              background: working ? '#8c8f94' : '#b4551f',
+              color: '#fff',
+              font: '600 0.85rem/1 inherit',
+              cursor: working ? 'default' : 'pointer',
+            },
+          },
+          working ? 'Splitting…' : 'Split the block here',
+        ),
+        this.state.state === 'failed'
+          ? h(
+              'p',
+              { style: { margin: '0.5rem 0 0', fontSize: '0.8rem', color: '#8c3b12' } },
+              'Nothing to save yet — make a change first, or use Save at the top of the page.',
+            )
+          : null,
+      );
+    },
+  });
+
+  CMS.registerWidget(
+    'split-action',
+    SplitActionControl,
+    () => null,
+  );
+}
+
 CMS.registerEditorComponent({
   id: 'split',
   label: 'Split here — start a new block',
@@ -94,7 +221,13 @@ CMS.registerEditorComponent({
       widget: 'select',
       default: 'interruption',
       options: SPLIT_CHOICES,
-      hint: 'Save the chapter and the new block will be sitting here, empty and waiting.',
+      hint: 'Then press the button. The block below splits in two and the new one lands here.',
+    },
+    {
+      name: 'go',
+      label: ' ',
+      widget: 'split-action',
+      required: false,
     },
   ],
   pattern: SPLIT_MARKER,
@@ -165,7 +298,28 @@ CMS.registerEventListener({
 
     const blocks = data.get('blocks');
     const split = applySplits(blocks);
-    return split === blocks ? data : data.set('blocks', split);
+    if (split === blocks) return data;
+
+    splitPending = true;
+    return data.set('blocks', split);
+  },
+});
+
+/**
+ * A save keeps the editor's in-memory copy on screen, so a chapter that has just
+ * been split still shows one block until the page is reloaded. That made the
+ * feature look broken to the first person who used it — the work had happened and
+ * there was nothing to see. So when a split was applied, come back to the saved
+ * version, where the new block is sitting in its gap.
+ */
+let splitPending = false;
+
+CMS.registerEventListener({
+  name: 'postSave',
+  handler: () => {
+    if (!splitPending) return;
+    splitPending = false;
+    setTimeout(() => window.location.reload(), 600);
   },
 });
 
@@ -266,8 +420,6 @@ function blockHtml(block) {
 
   return '';
 }
-
-const h = window.h || (window.React && window.React.createElement);
 
 if (h)
   CMS.registerPreviewTemplate('chapters', ({ entry }) => {

@@ -12,26 +12,32 @@ import { defineCollection, z } from 'astro:content';
  * Rendered by src/components/ChapterBlocks.astro.
  */
 
+/**
+ * Every content field defaults to empty. "Split here" inserts a blank block on
+ * purpose, and a half-written chapter has to be saveable — the editor is for a
+ * writer mid-draft, not for finished copy only.
+ */
+
 const telling = z.object({
   type: z.literal('telling'),
-  text: z.string(),
+  text: z.string().default(''),
 });
 
 const interruption = z.object({
   type: z.literal('interruption'),
   channel: z.string().optional(),
-  lines: z.string(),
+  lines: z.string().default(''),
 });
 
 const aloud = z.object({
   type: z.literal('aloud'),
-  text: z.string(),
+  text: z.string().default(''),
 });
 
 const table = z.object({
   type: z.literal('table'),
   caption: z.string().optional(),
-  markdown: z.string(),
+  markdown: z.string().default(''),
 });
 
 const chapters = defineCollection({
