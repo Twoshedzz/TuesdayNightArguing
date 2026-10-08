@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import CoverHero from '../components/CoverHero.astro';
 import SiteHeader from '../components/SiteHeader.astro';
 import { getPublishedChapters, formatChapterLabel } from '../lib/chapters';
 import { SITE_TITLE } from '../lib/site';
@@ -12,21 +13,22 @@ const firstChapter = chapters[0];
   <SiteHeader slot="header" />
 
   <div class="container container--cover">
-    <p class="cover__eyebrow">A Dungeons &amp; Dragons campaign, told twice</p>
-    <h1 class="cover__title">Tuesday Night Arguing</h1>
+    <CoverHero
+      image="/illustrations/cover/cover-noct-in-the-doorway.jpg"
+      eyebrow="A Dungeons &amp; Dragons campaign, told twice"
+      title={SITE_TITLE}
+      lede="One campaign, as told by a bard who was there and a man who was on a call."
+      ctaLabel={firstChapter ? 'Begin reading' : undefined}
+      ctaHref={firstChapter ? `/chapters/${firstChapter.slug}/` : undefined}
+    />
+
     <p class="cover__lede">
       Noct Strigbart, dwarf bard, recounts the finest hour of his life. The man playing
       him is in a box room in Lancashire with the door shut, and somebody's wife has just
       come in to ask about radiators.
     </p>
 
-    {
-      firstChapter ? (
-        <a class="cover__cta" href={`/chapters/${firstChapter.slug}/`}>Begin reading</a>
-      ) : (
-        <p class="cover__empty">No chapters published yet.</p>
-      )
-    }
+    {!firstChapter && <p class="cover__empty">No chapters published yet.</p>}
 
     {
       chapters.length > 0 && (

@@ -1,0 +1,172 @@
+---
+/**
+ * The cover, as a cover.
+ *
+ * A full-bleed plate with the title, the strapline and the way in set over it —
+ * the arrangement of a paperback rather than a web page: title block high, the
+ * way in low where a publisher's mark would sit.
+ *
+ * Scaling is the whole problem. A cover is a fixed set of proportions, and type
+ * sized in rem stops being a cover the moment the plate is any other size. So the
+ * plate is a container and everything on it is sized in `cqi` — a percentage of
+ * the plate's own width — which means it holds its composition identically on a
+ * phone and on a desktop. The clamp() on the outside keeps it from becoming
+ * unreadably small on a narrow screen or absurd on a wide one.
+ *
+ * The art is a background rather than an <img> because it is decoration: the
+ * title is real text above it, which is what a screen reader and a search engine
+ * should find. Pass `alt` only if the painting carries meaning the words do not.
+ */
+interface Props {
+  image: string;
+  eyebrow?: string;
+  title: string;
+  lede?: string;
+  ctaLabel?: string;
+  ctaHref?: string;
+}
+
+const { image, eyebrow, title, lede, ctaLabel, ctaHref } = Astro.props;
+---
+
+<section class="plate" style={`--plate-art: url('${image}')`}>
+  <div class="plate__art" aria-hidden="true"></div>
+
+  <div class="plate__type">
+    <header class="plate__head">
+      {eyebrow && <p class="plate__eyebrow">{eyebrow}</p>}
+      <h1 class="plate__title">{title}</h1>
+    </header>
+
+    <footer class="plate__foot">
+      {lede && <p class="plate__lede">{lede}</p>}
+      {
+        ctaHref && ctaLabel && (
+          <a class="plate__cta" href={ctaHref}>
+            {ctaLabel}
+          </a>
+        )
+      }
+    </footer>
+  </div>
+</section>
+
+<style>
+  .plate {
+    container-type: inline-size;
+    position: relative;
+    width: 100%;
+    max-width: 42rem;
+    margin: 0 auto 2.5rem;
+    aspect-ratio: 5 / 7;
+    overflow: hidden;
+    background: #241a12;
+    border: 1px solid var(--rule, #b5a584);
+  }
+
+  .plate__art {
+    position: absolute;
+    inset: 0;
+    background-image: var(--plate-art);
+    background-size: cover;
+    background-position: center;
+  }
+
+  /*
+   * Two scrims rather than one flat wash, so the painting keeps its middle and
+   * only the ends darken under the type.
+   */
+  .plate__art::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(to bottom, rgb(20 12 6 / 0.72) 0%, rgb(20 12 6 / 0.25) 26%, rgb(20 12 6 / 0) 42%),
+      linear-gradient(to top, rgb(20 12 6 / 0.82) 0%, rgb(20 12 6 / 0.4) 22%, rgb(20 12 6 / 0) 46%);
+  }
+
+  .plate__type {
+    position: relative;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 5cqi 6cqi;
+    text-align: center;
+    color: #f5ead6;
+  }
+
+  .plate__eyebrow {
+    margin: 0 0 1.4cqi;
+    font-family: var(--ui, system-ui, sans-serif);
+    font-size: clamp(0.58rem, 2.3cqi, 0.95rem);
+    font-weight: 600;
+    /* Tracking this wide forces an ugly break on a narrow plate, so it eases off. */
+    letter-spacing: clamp(0.08em, 0.5cqi, 0.18em);
+    text-transform: uppercase;
+    text-wrap: balance;
+    color: #e8b88a;
+    text-shadow: 0 1px 3px rgb(0 0 0 / 0.8);
+  }
+
+  .plate__title {
+    margin: 0;
+    font-family: var(--slab, Georgia, serif);
+    font-weight: 400;
+    font-size: clamp(1.9rem, 11cqi, 5.2rem);
+    line-height: 0.95;
+    letter-spacing: -0.01em;
+    text-wrap: balance;
+    text-shadow:
+      0 2px 4px rgb(0 0 0 / 0.85),
+      0 0 26px rgb(0 0 0 / 0.5);
+  }
+
+  .plate__lede {
+    margin: 0 auto 3cqi;
+    max-width: 34ch;
+    font-family: var(--serif, Georgia, serif);
+    font-size: clamp(0.78rem, 3.1cqi, 1.1rem);
+    line-height: 1.45;
+    text-shadow: 0 1px 4px rgb(0 0 0 / 0.9);
+  }
+
+  .plate__cta {
+    display: inline-block;
+    padding: 1.6cqi 5cqi;
+    border: 1px solid #e8b88a;
+    background: rgb(20 12 6 / 0.55);
+    backdrop-filter: blur(2px);
+    color: #f5ead6;
+    font-family: var(--ui, system-ui, sans-serif);
+    font-size: clamp(0.72rem, 2.8cqi, 1rem);
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    text-decoration: none;
+    transition: background 0.15s ease, color 0.15s ease;
+  }
+
+  .plate__cta:hover,
+  .plate__cta:focus-visible {
+    background: #e8b88a;
+    color: #241a12;
+  }
+
+  /*
+   * Below about 30rem a 5:7 plate is taller than the screen. Letting it go a
+   * little wider keeps the whole cover in view without shrinking the type.
+   */
+  @media (max-width: 30rem) {
+    .plate {
+      aspect-ratio: 4 / 5;
+    }
+  }
+
+  @media (prefers-reduced-transparency: reduce) {
+    .plate__cta {
+      backdrop-filter: none;
+      background: rgb(20 12 6 / 0.85);
+    }
+  }
+</style>
