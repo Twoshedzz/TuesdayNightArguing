@@ -1,5 +1,10 @@
 # Tuesday Night Arguing
 
+**Travelling, or picking this up on another machine?** The cross-repo handover —
+current state of all three apps, what is outstanding, and the traps already paid
+for — lives in the **RuinsOfEthium** repo at `.agents/HANDOVER.md`. Clone that repo
+too; most tasks here need it.
+
 **The full working agreement lives in [`.agents/AGENTS.md`](.agents/AGENTS.md). Read it before doing anything in this repo.**
 
 The rules most easily broken by an agent that has not read it yet:
